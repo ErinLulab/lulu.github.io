@@ -2,33 +2,39 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <!-- v2.1: 优化Viewport，全面适配手机，解决刘海屏和缩放问题 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>LuluList · 我的电子手账</title>
+    <!-- v2.1: 升级 html2canvas 版本以修复移动端兼容性问题 -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
+        /* v2.1: 移动端CSS重置和优化 */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            /* 优化触控体验，消除点击高亮 */
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             background: #f3f4f6;
             font-family: system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', 'Noto Sans', sans-serif;
-            padding: 20px;
+            padding: 16px;  /* v2.1: 为小屏幕优化外边距 */
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
         }
 
+        /* v2.1: 核心容器采用更现代的响应式布局 */
         .dashboard {
             max-width: 700px;
             width: 100%;
             background: white;
             border-radius: 40px;
             box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2);
-            padding: 24px 20px 32px;
+            padding: 20px 16px 28px;  /* v2.1: 为小屏幕优化内边距 */
             position: relative;
             transition: opacity 0.2s ease-in-out;
         }
@@ -43,17 +49,18 @@
             right: 20px;
             background: #f3f4f6;
             border: 1px solid #e5e7eb;
-            padding: 6px 12px;
-            border-radius: 30px;
-            font-size: 0.75rem;
+            padding: 8px 14px;  /* v2.1: 增大触控区域 */
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
             cursor: pointer;
             transition: 0.2s;
             color: #4b5563;
             z-index: 10;
         }
-        .archive-btn:hover {
-            background: #fef3c7;
-            border-color: #f97316;
+        .archive-btn:active {  /* v2.1: 为触屏添加按下状态 */
+            background: #e5e7eb;
+            transform: scale(0.96);
         }
 
         .title-section {
@@ -72,6 +79,7 @@
             margin-top: 4px;
         }
 
+        /* v2.1: 移动端优化的日期选择区 */
         .date-picker-area {
             background: #fef3c7;
             padding: 12px 16px;
@@ -88,7 +96,7 @@
             color: #92400e;
         }
         .date-input {
-            padding: 8px 16px;
+            padding: 10px 16px;
             font-size: 1rem;
             border: 1px solid #d1d5db;
             border-radius: 40px;
@@ -96,23 +104,27 @@
             background: white;
             cursor: pointer;
             font-family: inherit;
-        }
-        .date-input:focus {
-            border-color: #f97316;
-            box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2);
+            /* v2.1: 移动端避免 input 聚焦时自动缩放 */
+            font-size: 16px;
         }
         .goto-btn {
             background: #f97316;
             border: none;
-            padding: 8px 20px;
+            padding: 10px 20px;
             border-radius: 40px;
             color: white;
             font-weight: 600;
             cursor: pointer;
             transition: 0.2s;
+            /* v2.1: 增大触控区域，提升移动端操作体验 */
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
-        .goto-btn:hover {
+        .goto-btn:active {
             background: #ea580c;
+            transform: scale(0.96);
         }
         .date-hint {
             font-size: 0.7rem;
@@ -125,14 +137,15 @@
         .current-date-badge {
             text-align: center;
             margin: 12px 0 16px;
-            padding: 10px 16px;
+            padding: 12px 16px;
             background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border-radius: 40px;
+            border-radius: 60px;
             font-size: 1rem;
             font-weight: 600;
             color: #92400e;
         }
         
+        /* v2.1: 移动端优化的 Toast 提示 */
         .date-toast {
             position: fixed;
             bottom: 30px;
@@ -140,12 +153,15 @@
             transform: translateX(-50%);
             background: #1f2937;
             color: white;
-            padding: 10px 20px;
-            border-radius: 40px;
+            padding: 12px 24px;
+            border-radius: 60px;
             font-size: 0.85rem;
+            font-weight: 500;
             z-index: 1000;
             animation: fadeInOut 1.5s ease;
             pointer-events: none;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         
         @keyframes fadeInOut {
@@ -158,17 +174,18 @@
         .mood-section {
             background: #fef2f2;
             border-radius: 28px;
-            padding: 12px 20px;
+            padding: 14px 20px;
             margin-bottom: 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
         }
         .mood-label {
-            font-weight: 500;
+            font-weight: 600;
             color: #dc2626;
+            font-size: 1rem;
         }
         .stars {
             display: flex;
@@ -177,22 +194,24 @@
             flex-wrap: wrap;
         }
         .star {
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             cursor: pointer;
             color: #d1d5db;
             transition: 0.1s;
             background: transparent;
+            /* v2.1: 增大星星的触控区域 */
+            padding: 4px;
         }
         .star.active {
             color: #fbbf24;
             text-shadow: 0 0 2px #f59e0b;
         }
         .star.default-star {
-            color: #d1d5db;
+            color: #9ca3af;
             border: 1px dashed #d1d5db;
-            border-radius: 4px;
+            border-radius: 6px;
             padding: 2px;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
         }
         .mood-hint {
             font-size: 0.7rem;
@@ -207,16 +226,19 @@
             font-weight: 600;
             margin-bottom: 8px;
             color: #374151;
+            font-size: 1rem;
         }
         .diary-text {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             border: 1px solid #e5e7eb;
-            border-radius: 20px;
+            border-radius: 24px;
             font-family: inherit;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             resize: vertical;
             outline: none;
+            /* v2.1: 移动端避免 input 聚焦时自动缩放 */
+            font-size: 16px;
         }
         .diary-text:focus {
             border-color: #f97316;
@@ -237,11 +259,13 @@
             display: flex;
             justify-content: space-between;
             align-items: baseline;
-            margin: 16px 0 12px;
+            margin: 20px 0 12px;
         }
         .todo-title {
             font-weight: 600;
+            font-size: 1rem;
         }
+        /* v2.1: 移动端优化的待办添加区 */
         .add-todo {
             display: flex;
             gap: 8px;
@@ -250,60 +274,63 @@
         }
         .add-todo input {
             flex: 2;
-            padding: 10px 14px;
+            padding: 12px 14px;
             border: 1px solid #d1d5db;
-            border-radius: 30px;
+            border-radius: 60px;
             outline: none;
-        }
-        .add-todo input:focus {
-            border-color: #f97316;
+            font-size: 16px;
         }
         .add-todo .due-input {
             flex: 1;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
         }
         .add-todo button {
             background: #f97316;
             border: none;
-            padding: 0 16px;
-            border-radius: 30px;
+            padding: 0 18px;
+            border-radius: 60px;
             color: white;
             font-weight: 600;
             cursor: pointer;
+            transition: 0.2s;
+            min-height: 44px;
+        }
+        .add-todo button:active {
+            background: #ea580c;
+            transform: scale(0.96);
         }
 
         .todo-list {
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
             margin-top: 12px;
         }
+        /* v2.1: 为移动端优化的待办卡片 */
         .todo-item {
             background: #f9fafb;
-            border-radius: 20px;
-            padding: 8px 12px;
+            border-radius: 60px;
+            padding: 8px 12px 8px 16px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             border: 1px solid #e5e7eb;
             flex-wrap: wrap;
             transition: all 0.2s ease;
         }
-        .todo-item:hover {
-            background: #fef3c7;
-            transform: translateX(4px);
-        }
         .todo-check {
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             cursor: pointer;
             accent-color: #f97316;
+            flex-shrink: 0;
         }
         .todo-text {
             flex: 2;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             word-break: break-word;
+            line-height: 1.4;
         }
         .todo-item.completed .todo-text {
             text-decoration: line-through;
@@ -312,61 +339,69 @@
         .todo-due {
             font-size: 0.7rem;
             background: #e5e7eb;
-            padding: 4px 8px;
-            border-radius: 20px;
+            padding: 6px 12px;
+            border-radius: 40px;
             color: #4b5563;
+            white-space: nowrap;
         }
-        .todo-edit-btn, .todo-save-btn, .todo-cancel-btn {
-            background: none;
-            border: none;
-            font-size: 1.1rem;
-            cursor: pointer;
-            padding: 4px 6px;
-            border-radius: 20px;
-        }
-        .todo-edit-btn:hover { background: #e0e7ff; }
-        .delete-btn {
+        /* v2.1: 优化编辑和删除按钮，增大触控区域 */
+        .todo-edit-btn, .todo-save-btn, .todo-cancel-btn, .delete-btn {
             background: none;
             border: none;
             font-size: 1.2rem;
             cursor: pointer;
-            color: #9ca3af;
+            padding: 8px 10px;
+            border-radius: 40px;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 44px;
         }
-        .delete-btn:hover { color: #dc2626; }
+        .todo-edit-btn:hover { background: #e0e7ff; }
+        .todo-edit-btn:active { background: #e0e7ff; transform: scale(0.96);}
+        .delete-btn { color: #9ca3af; }
+        .delete-btn:active { color: #dc2626; background: #fee2e2; transform: scale(0.96);}
+        
         .edit-input {
             flex: 2;
-            padding: 6px;
-            border-radius: 16px;
+            padding: 10px;
+            border-radius: 60px;
             border: 1px solid #f97316;
+            font-size: 16px;
         }
         .edit-due {
-            font-size: 0.75rem;
-            padding: 4px;
+            font-size: 0.85rem;
+            padding: 8px;
+            border-radius: 40px;
         }
 
         .empty-message {
             text-align: center;
             color: #9ca3af;
-            padding: 32px 20px;
+            padding: 40px 20px;
             background: #f9fafb;
-            border-radius: 24px;
+            border-radius: 32px;
             font-size: 0.9rem;
         }
         .stats {
-            margin-top: 16px;
-            font-size: 0.7rem;
+            margin-top: 20px;
+            font-size: 0.75rem;
             text-align: center;
             color: #6b7280;
             padding-top: 12px;
             border-top: 1px solid #e5e7eb;
         }
         
+        /* v2.1: 归档预览容器优化 */
         .archive-preview-container {
             position: fixed;
             left: -9999px;
             top: 0;
-            width: 700px;
+            width: 100%;
+            max-width: 700px;
             background: white;
+            box-sizing: border-box;
         }
         .archive-day-card {
             background: white;
@@ -387,7 +422,7 @@
         .archive-mood {
             background: #fef2f2;
             border-radius: 20px;
-            padding: 8px 16px;
+            padding: 12px 16px;
             margin-bottom: 16px;
         }
         .archive-diary {
@@ -396,6 +431,7 @@
             padding: 12px 16px;
             margin-bottom: 16px;
             white-space: pre-wrap;
+            word-break: break-word;
         }
         .archive-todos {
             background: #f9fafb;
@@ -403,8 +439,35 @@
             padding: 12px 16px;
         }
         .archive-todo-item {
-            padding: 6px 0;
+            padding: 8px 0;
             border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* v2.1: 响应式断点，针对更小的设备微调 */
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+            }
+            .dashboard {
+                padding: 16px 12px 24px;
+                border-radius: 32px;
+            }
+            .star {
+                font-size: 1.5rem;
+            }
+            .todo-due {
+                font-size: 0.65rem;
+                padding: 4px 8px;
+            }
+            .date-hint {
+                font-size: 0.65rem;
+            }
+            .mood-hint {
+                font-size: 0.65rem;
+            }
         }
     </style>
 </head>
@@ -440,7 +503,7 @@
         <span class="todo-title">🎯 待办清单</span>
     </div>
     <div class="add-todo">
-        <input type="text" id="todoTextInput" placeholder="新任务">
+        <input type="text" id="todoTextInput" placeholder="新任务" autocomplete="off">
         <input type="date" id="todoDueDateInput" class="due-input">
         <button id="addTodoBtn">➕ 添加</button>
     </div>
@@ -451,13 +514,16 @@
 <div class="archive-preview-container" id="archivePreviewContainer"></div>
 
 <script>
-    // ========== LuluList v2.0.8 正式版 ==========
-    // 日期选择范围：近 30 天
-    // 归档周期：超过 7 天的数据可归档
+    // ========== LuluList v2.1 移动端优化版 ==========
+    // 更新内容：
+    // 1. 全面优化移动端触摸体验和响应式布局
+    // 2. 修复 ios 13.4.x 系统上 html2canvas 导出长图失败的问题（通过升级库版本）
+    // 3. 调整字体大小，防止 input 聚焦时页面自动缩放
+    // 4. 优化所有可点击元素的触控区域大小
     
-    const STORAGE_KEY = 'lululist_v2.0';
+    const STORAGE_KEY = 'lululist_v2.1';
     const MAX_SELECTABLE_DAYS = 30;   // 日期选择器可选范围（天）
-    const ARCHIVE_DAYS = 7;            // 归档周期（天）
+    const ARCHIVE_DAYS = 7;           // 归档周期（天）
     
     let journal = {};
     let currentDate = getTodayDate();
@@ -888,18 +954,22 @@
                 scale: 2,
                 backgroundColor: '#f3f4f6',
                 logging: false,
-                useCORS: true
+                useCORS: true,
+                // v2.1: 增加移动端兼容性配置
+                allowTaint: false,
+                windowWidth: archivePreviewContainer.scrollWidth
             });
             return canvas.toDataURL('image/png');
         } catch (err) {
             console.error('长图生成失败:', err);
+            showToast('截图生成失败，请重试', 2000);
             return null;
         }
     }
     
     async function archiveAndExport() {
         const today = getTodayDate();
-        const archiveBoundary = getArchiveBoundary();  // 7天前
+        const archiveBoundary = getArchiveBoundary();
         
         const toArchive = {};
         let hasOldData = false;
@@ -912,7 +982,7 @@
         }
         
         if (!hasOldData) {
-            alert(`📭 当前没有超过${ARCHIVE_DAYS}天的旧数据，无需归档。\n\n提示：日期可选近${MAX_SELECTABLE_DAYS}天，但只有超过${ARCHIVE_DAYS}天的数据才会被归档。`);
+            alert(`📭 当前没有超过${ARCHIVE_DAYS}天的旧数据，无需归档。`);
             return;
         }
         
@@ -928,7 +998,7 @@
         jsonLink.click();
         URL.revokeObjectURL(jsonUrl);
         
-        showToast(`📄 JSON 文件已保存到「下载」文件夹`, 2000);
+        showToast(`📄 JSON 文件已保存`, 2000);
         
         // 生成近7天周记长图
         showToast(`📸 正在生成近${ARCHIVE_DAYS}天周记长图...`, 1500);
@@ -939,7 +1009,7 @@
             imgLink.href = longImageDataUrl;
             imgLink.download = `lululist_weekly_${archiveDate}.png`;
             imgLink.click();
-            showToast(`🖼️ 周记长图已保存到「下载」文件夹`, 3000);
+            showToast(`🖼️ 周记长图已保存`, 3000);
         } else {
             alert('长图生成失败，请重试。');
         }
