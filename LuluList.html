@@ -3,36 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>LuluList 布局测试</title>
+    <title>LuluList · 最终两行版</title>
     <style>
-        body { background: #f3f4f6; padding: 16px; font-family: system-ui; }
-        .card { max-width: 600px; background: white; margin: 0 auto; border-radius: 16px; padding: 20px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #f3f4f6; font-family: system-ui; padding: 16px; }
+        .dashboard { max-width: 700px; margin: 0 auto; background: white; border-radius: 12px; padding: 20px; }
         
-        /* DateBar 两行布局 */
-        .date-bar { background: #fef3c7; padding: 12px; border-radius: 12px; margin-bottom: 12px; }
-        .date-row-top { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; align-items: center; }
-        .date-picker { padding: 8px; border-radius: 8px; border: 1px solid #ccc; flex: 1; }
-        .date-go-button { background: #f97316; border: none; padding: 8px 16px; border-radius: 8px; color: white; }
-        .date-range-hint { font-size: 0.8rem; color: #92400e; background: #ffedd5; padding: 6px; border-radius: 6px; text-align: left; }
+        /* 第一行：标签 + 选择器 + 按钮 */
+        .date-row-top {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            background: #fef3c7;
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .date-picker { flex: 2; padding: 8px; border-radius: 6px; border: 1px solid #ccc; }
+        .date-go-button { background: #f97316; color: white; border: none; padding: 8px 16px; border-radius: 6px; white-space: nowrap; }
         
-        /* TodoItem 强制两行 */
-        .todo-item { background: #f9fafb; padding: 12px; border-radius: 12px; margin-top: 12px; border: 1px solid #eee; }
-        .todo-row-top { display: flex; gap: 10px; margin-bottom: 8px; }
-        .todo-row-bottom { display: flex; justify-content: space-between; }
-        .todo-actions { display: flex; gap: 8px; }
+        /* 第二行：近30天（强制单独一行） */
+        .date-range-hint {
+            background: #ffedd5;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: #92400e;
+            margin-top: 6px;
+        }
+
+        /* 测试用的 TodoItem 两行 */
+        .todo-item { margin-top: 20px; background: #f9fafb; padding: 12px; border-radius: 8px; }
+        .todo-row-top { display: flex; gap: 8px; margin-bottom: 6px; }
+        .todo-row-bottom { display: flex; justify-content: space-between; align-items: center; }
+        .todo-actions { display: flex; gap: 6px; }
     </style>
 </head>
 <body>
-<div class="card">
-    <div class="date-bar">
-        <div class="date-row-top">
-            <span>📅 选择日期：</span>
-            <input type="date" class="date-picker" value="2026-05-21">
-            <button class="date-go-button">前往</button>
-        </div>
-        <div class="date-range-hint">📆 近30天</div>
+<div class="dashboard">
+    <!-- ✅ 日期区：两行结构，永不合并 -->
+    <div class="date-row-top">
+        <span>📅 选择日期：</span>
+        <input type="date" class="date-picker" value="2026-05-21">
+        <button class="date-go-button">前往</button>
     </div>
+    <div class="date-range-hint">📆 近30天</div>
 
+    <!-- ✅ 待办：两行结构 -->
     <div class="todo-item">
         <div class="todo-row-top">
             <input type="checkbox"> 买簇绒枪
