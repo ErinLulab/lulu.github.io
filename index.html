@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>LuluList · 我的电子手账</title>
     <style>
+        /* ========== LuluList v3.0.2 组件化重构版 ========== */
         * {
             margin: 0;
             padding: 0;
@@ -20,6 +21,7 @@
             align-items: center;
             min-height: 100vh;
         }
+        /* Dashboard - 整个白色卡片容器 */
         .dashboard {
             max-width: 700px;
             width: 100%;
@@ -30,12 +32,14 @@
             transition: opacity 0.2s;
         }
         .dashboard.fade-out { opacity: 0; }
-        .title-section { text-align: center; margin-bottom: 16px; }
-        h1 { font-size: 1.6rem; font-weight: 600; color: #f97316; }
-        .sub { font-size: 0.7rem; color: #9ca3af; }
         
-        /* 修复1：日期选择器强制同行 */
-        .date-picker-area {
+        /* AppHeader - 标题 + 副标题 */
+        .app-header { text-align: center; margin-bottom: 16px; }
+        .app-title { font-size: 1.6rem; font-weight: 600; color: #f97316; }
+        .app-sub { font-size: 0.7rem; color: #9ca3af; }
+        
+        /* DateBar 区域组件 */
+        .date-bar {
             background: #fef3c7;
             padding: 10px 16px;
             border-radius: 60px;
@@ -47,8 +51,8 @@
             flex-wrap: nowrap;
             overflow-x: auto;
         }
-        .date-picker-area label { font-weight: 500; color: #92400e; font-size: 0.85rem; flex-shrink: 0; }
-        .date-input {
+        .date-label { font-weight: 500; color: #92400e; font-size: 0.85rem; flex-shrink: 0; }
+        .date-picker {
             padding: 8px 12px;
             font-size: 14px;
             border: 1px solid #d1d5db;
@@ -57,7 +61,7 @@
             flex-shrink: 1;
             min-width: 130px;
         }
-        .goto-btn {
+        .date-go-button {
             background: #f97316;
             border: none;
             padding: 8px 16px;
@@ -68,7 +72,7 @@
             flex-shrink: 0;
             font-size: 14px;
         }
-        .date-hint {
+        .date-range-hint {
             font-size: 0.65rem;
             color: #92400e;
             background: #ffedd5;
@@ -77,7 +81,8 @@
             flex-shrink: 0;
         }
         
-        .current-date-badge {
+        /* DateBadge - 当前日期横幅 */
+        .date-badge {
             text-align: center;
             margin: 12px 0 16px;
             padding: 10px 16px;
@@ -87,26 +92,30 @@
             color: #92400e;
             font-size: 0.9rem;
         }
-        .mood-section {
+        
+        /* MoodCard - 心情卡片 */
+        .mood-card {
             background: #fef2f2;
             border-radius: 28px;
             padding: 12px 20px;
             margin-bottom: 20px;
             display: flex;
+            align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 10px;
         }
         .mood-label { font-weight: 600; color: #dc2626; font-size: 0.9rem; }
-        .stars { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+        .mood-stars { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
         .star { font-size: 1.6rem; cursor: pointer; color: #d1d5db; padding: 2px; }
         .star.active { color: #fbbf24; }
         .star.default-star { color: #9ca3af; border: 1px dashed #d1d5db; border-radius: 6px; padding: 2px; font-size: 1.3rem; }
         .mood-hint { font-size: 0.65rem; color: #9ca3af; }
         
-        .diary-section { margin-bottom: 20px; }
+        /* DiaryCard - 日记卡片 */
+        .diary-card { margin-bottom: 20px; }
         .diary-label { font-weight: 600; margin-bottom: 6px; color: #374151; font-size: 0.9rem; }
-        .diary-text {
+        .diary-textarea {
             width: 100%;
             padding: 12px;
             border: 1px solid #e5e7eb;
@@ -115,16 +124,54 @@
             font-family: inherit;
             resize: vertical;
         }
-        .empty-diary-hint { color: #9ca3af; text-align: center; padding: 10px; background: #f9fafb; border-radius: 20px; margin-top: 8px; font-size: 0.75rem; }
+        .diary-empty-hint { color: #9ca3af; text-align: center; padding: 10px; background: #f9fafb; border-radius: 20px; margin-top: 8px; font-size: 0.75rem; }
         
-        .todo-header { margin: 16px 0 10px; }
+        /* TodoCard - 待办卡片 */
+        .todo-card { margin-top: 16px; }
+        .todo-header { margin-bottom: 10px; }
         .todo-title { font-weight: 600; font-size: 0.95rem; }
-        .add-todo { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-        .add-todo input { flex: 2; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 60px; font-size: 14px; }
-        .add-todo .due-input { flex: 1; font-size: 13px; }
-        .add-todo button { background: #f97316; border: none; padding: 0 16px; border-radius: 60px; color: white; font-weight: 600; cursor: pointer; min-height: 42px; }
         
-        .todo-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        /* TodoAddBar - 新增待办行 */
+        .todo-add-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .todo-text-input {
+            flex: 2;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 60px;
+            font-size: 14px;
+        }
+        .todo-due-picker {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 60px;
+            font-size: 13px;
+        }
+        .todo-add-button {
+            background: #f97316;
+            border: none;
+            padding: 0 16px;
+            border-radius: 60px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            min-height: 42px;
+        }
+        
+        /* TodoList - 待办列表 */
+        .todo-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        /* TodoItem - 单条待办 */
         .todo-item {
             background: #f9fafb;
             border-radius: 60px;
@@ -136,16 +183,15 @@
             border: 1px solid #e5e7eb;
         }
         .todo-check { width: 20px; height: 20px; accent-color: #f97316; flex-shrink: 0; }
-        
-        /* 修复2：待办文本最小宽度，图标右对齐 */
-        .todo-text { 
-            flex: 3; 
+        .todo-text {
+            flex: 3;
             min-width: 120px;
-            font-size: 0.9rem; 
+            font-size: 0.9rem;
             word-break: break-word;
             line-height: 1.4;
         }
-        .todo-due {
+        .todo-item.completed .todo-text { text-decoration: line-through; color: #9ca3af; }
+        .todo-due-date {
             font-size: 0.7rem;
             background: #e5e7eb;
             padding: 4px 10px;
@@ -153,13 +199,14 @@
             white-space: nowrap;
             flex-shrink: 0;
         }
+        /* TodoActions - 编辑/删除按钮容器（右对齐，紧凑间距） */
         .todo-actions {
             display: flex;
-            gap: 4px;
+            gap: 6px;
             margin-left: auto;
             flex-shrink: 0;
         }
-        .delete-btn, .todo-edit-btn {
+        .todo-edit-icon, .todo-delete-icon {
             background: none;
             border: none;
             font-size: 1.1rem;
@@ -168,10 +215,23 @@
             border-radius: 40px;
             min-width: 36px;
         }
-        .edit-input { flex: 3; padding: 8px; border-radius: 60px; border: 1px solid #f97316; font-size: 14px; }
-        .empty-message { text-align: center; color: #9ca3af; padding: 30px 20px; background: #f9fafb; border-radius: 32px; font-size: 0.85rem; }
+        .edit-input {
+            flex: 3;
+            padding: 8px;
+            border-radius: 60px;
+            border: 1px solid #f97316;
+            font-size: 14px;
+        }
+        .empty-todo { text-align: center; color: #9ca3af; padding: 30px 20px; background: #f9fafb; border-radius: 32px; font-size: 0.85rem; }
         
-        .footer-actions { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+        /* Footer */
+        .footer-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
         .footer-left, .footer-right { display: flex; gap: 10px; }
         .action-btn {
             background: #f3f4f6;
@@ -182,15 +242,25 @@
             cursor: pointer;
             min-height: 40px;
         }
-        .stats { text-align: center; font-size: 0.7rem; color: #6b7280; margin-top: 16px; padding-top: 10px; border-top: 1px solid #e5e7eb; }
         
+        /* StatsBar */
+        .stats-bar {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #6b7280;
+            margin-top: 16px;
+            padding-top: 10px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        /* HistoryModal */
         .modal-mask { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
         .modal-container { background: white; border-radius: 40px; width: 90%; max-width: 600px; max-height: 80%; overflow: auto; padding: 20px; }
         .modal-title { font-size: 1.3rem; font-weight: 600; color: #f97316; text-align: center; margin-bottom: 16px; }
         .history-group { margin-bottom: 16px; }
         .history-date { font-weight: 600; margin-bottom: 6px; border-bottom: 1px solid #e5e7eb; font-size: 0.85rem; }
         .history-item { background: #f9fafb; border-radius: 20px; padding: 8px 12px; margin-bottom: 6px; display: flex; gap: 8px; font-size: 0.85rem; }
-        .close-modal { background: #f97316; color: white; border: none; padding: 10px 20px; border-radius: 40px; width: 100%; cursor: pointer; margin-top: 16px; }
+        .close-modal-btn { background: #f97316; color: white; border: none; padding: 10px 20px; border-radius: 40px; width: 100%; cursor: pointer; margin-top: 16px; }
         
         .date-toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 60px; z-index: 1100; animation: fadeInOut 1.5s; white-space: nowrap; font-size: 0.8rem; }
         @keyframes fadeInOut { 0% { opacity: 0; transform: translateX(-50%) translateY(20px); } 15% { opacity: 1; transform: translateX(-50%) translateY(0); } 85% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
@@ -198,49 +268,60 @@
         @media (max-width: 480px) {
             body { padding: 12px; }
             .todo-text { min-width: 100px; font-size: 0.85rem; }
-            .date-input { min-width: 110px; font-size: 12px; }
-            .goto-btn { padding: 6px 12px; font-size: 12px; }
-            .action-btn { padding: 6px 12px; font-size: 0.7rem; }
+            .date-picker { min-width: 110px; font-size: 12px; }
+            .date-go-button { padding: 6px 12px; font-size: 12px; }
         }
     </style>
 </head>
 <body>
 <div class="dashboard" id="dashboardContainer">
-    <div class="title-section">
-        <h1>📒 LuluList-我的电子手账</h1>
-        <div class="sub">✧ 每天的心情、日记、待办，都值得收藏 ✧</div>
+    <!-- AppHeader -->
+    <div class="app-header">
+        <div class="app-title">📒 LuluList-我的电子手账</div>
+        <div class="app-sub">✧ 每天的心情、日记、待办，都值得收藏 ✧</div>
     </div>
-    <div class="date-picker-area">
-        <label>📅 选择日期：</label>
-        <input type="date" id="datePicker" class="date-input">
-        <button id="gotoDateBtn" class="goto-btn">📖 前往</button>
-        <span class="date-hint" id="dateHint"></span>
+
+    <!-- DateBar -->
+    <div class="date-bar">
+        <span class="date-label">📅 选择日期：</span>
+        <input type="date" id="datePicker" class="date-picker">
+        <button id="gotoDateBtn" class="date-go-button">📖 前往</button>
+        <span class="date-range-hint" id="dateHint"></span>
     </div>
-    <div class="current-date-badge" id="currentDateBadge"></div>
-    <div class="mood-section">
+
+    <!-- DateBadge -->
+    <div class="date-badge" id="currentDateBadge"></div>
+
+    <!-- MoodCard -->
+    <div class="mood-card">
         <span class="mood-label">💖 今日心情</span>
-        <div class="stars" id="starContainer"></div>
+        <div class="mood-stars" id="starContainer"></div>
     </div>
-    <div class="diary-section">
+
+    <!-- DiaryCard -->
+    <div class="diary-card">
         <div class="diary-label">📝 今日日记</div>
-        <textarea class="diary-text" id="diaryInput" rows="3" placeholder="写点什么吧..."></textarea>
-        <div class="empty-diary-hint" id="emptyDiaryHint" style="display: none;">✨ 还没有写日记，记录一下今天的心情吧～</div>
+        <textarea class="diary-textarea" id="diaryInput" rows="3" placeholder="写点什么吧..."></textarea>
+        <div class="diary-empty-hint" id="emptyDiaryHint" style="display: none;">✨ 还没有写日记，记录一下今天的心情吧～</div>
     </div>
-    <div class="todo-header">
-        <span class="todo-title">🎯 待办清单</span>
+
+    <!-- TodoCard -->
+    <div class="todo-card">
+        <div class="todo-header">
+            <span class="todo-title">🎯 待办清单</span>
+        </div>
+        <div class="todo-add-bar">
+            <input type="text" id="todoTextInput" class="todo-text-input" placeholder="新任务" autocomplete="off">
+            <input type="date" id="todoDueDateInput" class="todo-due-picker">
+            <button id="addTodoBtn" class="todo-add-button">➕ 添加</button>
+        </div>
+        <ul class="todo-list" id="todoListContainer"></ul>
     </div>
-    <div class="add-todo">
-        <input type="text" id="todoTextInput" placeholder="新任务" autocomplete="off">
-        <input type="date" id="todoDueDateInput" class="due-input">
-        <button id="addTodoBtn">➕ 添加</button>
-    </div>
-    <ul class="todo-list" id="todoListContainer"></ul>
+
+    <!-- Footer -->
     <div class="footer-actions">
         <div class="footer-left">
             <button id="historyBtn" class="action-btn">📜 历史完成</button>
-            <!-- 周记归档按钮已注释
-            <button id="archiveBtn" class="action-btn">📦 周记归档</button>
-            -->
         </div>
         <div class="footer-right">
             <button id="exportBtn" class="action-btn">📤 导出备份</button>
@@ -248,19 +329,20 @@
             <input type="file" id="importFileInput" accept=".json" style="display: none;">
         </div>
     </div>
-    <div class="stats" id="statsArea"></div>
+    <div class="stats-bar" id="statsArea"></div>
 </div>
+
+<!-- HistoryModal -->
 <div id="historyModal" style="display: none;" class="modal-mask">
     <div class="modal-container">
         <div class="modal-title">📜 历史完成记录</div>
         <div id="historyContent"></div>
-        <button class="close-modal" id="closeHistoryBtn">关闭</button>
+        <button class="close-modal-btn" id="closeHistoryBtn">关闭</button>
     </div>
 </div>
+
 <script>
-    // ========== LuluList v3.0.1 修复版 ==========
-    // 修复：日期选择器同行、待办文本宽度、图标右对齐、跨天继承bug、移除周记归档
-    
+    // ========== LuluList v3.0.2 组件化重构版 ==========
     const STORAGE_KEY = 'lululist_v3.0';
     const MAX_DAYS = 30;
     
@@ -343,24 +425,18 @@
     function ensureData() { if (!journal[currentDate]) journal[currentDate] = { mood: 3, _hasUserRated: false, diary: '', todos: [] }; saveData(); }
     function getCurrent() { ensureData(); return journal[currentDate]; }
     
-    // 修复3：跨天继承 - 只继承未完成的待办
     function inheritTodos(prev, next) {
         if (!prev || !journal[prev]) return;
         const prevTodos = journal[prev].todos || [];
         const nextTodos = journal[next]?.todos || [];
         const nextIds = new Set(nextTodos.map(t => t.id));
-        // 只继承未完成的（completed === false）
         const toInherit = prevTodos.filter(t => t.completed === false && !nextIds.has(t.id));
         if (!toInherit.length) return;
         if (!journal[next]) journal[next] = { mood: 3, _hasUserRated: false, diary: '', todos: [] };
         for (let t of toInherit) {
             journal[next].todos.push({
-                id: t.id,
-                text: t.text,
-                completed: false,
-                dueDate: t.dueDate,
-                createdAt: t.createdAt || Date.now(),
-                completedAt: null
+                id: t.id, text: t.text, completed: false, dueDate: t.dueDate,
+                createdAt: t.createdAt || Date.now(), completedAt: null
             });
         }
         saveData();
@@ -462,7 +538,7 @@
         const incomplete = todos.filter(t => !t.completed).sort((a,b) => (a.createdAt||0) - (b.createdAt||0));
         const complete = todos.filter(t => t.completed).sort((a,b) => (a.completedAt||0) - (b.completedAt||0));
         const sorted = [...incomplete, ...complete];
-        if (!sorted.length) { dom.todoList.innerHTML = '<div class="empty-message">✨ 空空如也，添加一条任务吧 ✨</div>'; dom.stats.innerText = `✅ 待办完成 0/0`; return; }
+        if (!sorted.length) { dom.todoList.innerHTML = '<div class="empty-todo">✨ 空空如也，添加一条任务吧 ✨</div>'; dom.stats.innerText = `✅ 待办完成 0/0`; return; }
         dom.todoList.innerHTML = '';
         for (let t of sorted) {
             const li = document.createElement('li');
@@ -483,21 +559,19 @@
             textSpan.className = 'todo-text';
             textSpan.innerText = t.text;
             const dueSpan = document.createElement('span');
-            dueSpan.className = 'todo-due';
+            dueSpan.className = 'todo-due-date';
             dueSpan.innerText = t.dueDate ? `📅 ${t.dueDate}` : '⏳ 无日期';
-            
             const actionsDiv = document.createElement('div');
             actionsDiv.className = 'todo-actions';
             const editBtn = document.createElement('button');
             editBtn.innerHTML = '✏️';
-            editBtn.className = 'todo-edit-btn';
+            editBtn.className = 'todo-edit-icon';
             editBtn.onclick = () => enterEdit(li, t);
             const delBtn = document.createElement('button');
             delBtn.innerHTML = '🗑️';
-            delBtn.className = 'delete-btn';
+            delBtn.className = 'todo-delete-icon';
             delBtn.onclick = () => { if(confirm('永久删除？')) deleteGlobal(t.id); };
             actionsDiv.append(editBtn, delBtn);
-            
             li.append(chk, textSpan, dueSpan, actionsDiv);
             dom.todoList.appendChild(li);
         }
@@ -544,7 +618,6 @@
         await new Promise(r => setTimeout(r, 150));
         const prev = currentDate;
         currentDate = dateStr;
-        // 只继承未完成的待办
         inheritTodos(prev, currentDate);
         saveCurrentDate();
         renderAll();
