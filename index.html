@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>LuluList · 我的电子手账</title>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="LuluList">
@@ -41,7 +44,6 @@
         .app-title { font-size: 1.6rem; font-weight: 600; color: #f97316; }
         .app-sub { font-size: 0.7rem; color: #9ca3af; }
 
-        /* DateBar 两行结构 */
         .date-bar {
             background: #fef3c7;
             padding: 12px;
@@ -200,13 +202,41 @@
             border-radius: 30px;
         }
         .todo-item.completed .todo-text { text-decoration: line-through; color: #9ca3af; }
-        .edit-input {
-            flex: 1;
+        
+        .edit-mode {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+        .edit-text-input {
+            width: 100%;
             padding: 8px;
             border-radius: 8px;
             border: 1px solid #f97316;
             font-size: 14px;
         }
+        .edit-due-input {
+            width: 100%;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            font-size: 14px;
+        }
+        .edit-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        .edit-save-btn, .edit-cancel-btn {
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .edit-save-btn { background: #f97316; color: white; border: none; }
+        .edit-cancel-btn { background: #e5e7eb; border: none; }
+        
         .empty-todo { text-align: center; color: #9ca3af; padding: 30px 20px; background: #f9fafb; border-radius: 12px; font-size: 0.85rem; }
 
         .footer-actions {
@@ -226,6 +256,12 @@
             cursor: pointer;
             min-height: 40px;
         }
+        /* 统计按钮激活状态 */
+        .action-btn.active {
+            background: #f97316;
+            color: white;
+            border-color: #f97316;
+        }
 
         .stats-bar {
             text-align: center;
@@ -234,6 +270,28 @@
             margin-top: 16px;
             padding-top: 10px;
             border-top: 1px solid #e5e7eb;
+        }
+
+        /* 图表容器 */
+        .chart-container {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+            display: none;
+        }
+        .chart-container.show {
+            display: block;
+        }
+        .chart-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        canvas {
+            max-height: 250px;
+            width: 100%;
         }
 
         .modal-mask { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
@@ -260,7 +318,6 @@
         <div class="app-sub">✧ 每天的心情、日记、待办，都值得收藏 ✧</div>
     </div>
 
-    <!-- DateBar 两行 -->
     <div class="date-bar">
         <div class="date-row-top">
             <span class="date-label">📅 选择日期：</span>
@@ -294,14 +351,22 @@
     </div>
 
     <div class="footer-actions">
-        <div class="footer-left"><button id="historyBtn" class="action-btn">📜 历史完成</button></div>
+        <div class="footer-left">
+            <button id="historyBtn" class="action-btn">📜 历史完成</button>
+        </div>
         <div class="footer-right">
             <button id="exportBtn" class="action-btn">📤 导出备份</button>
             <button id="importBtn" class="action-btn">📥 导入备份</button>
-            <input type="file" id="importFileInput" accept=".json" style="display: none;">
+            <button id="statsBtn" class="action-btn">📊 统计</button>
         </div>
     </div>
     <div class="stats-bar" id="statsArea"></div>
+
+    <!-- 图表容器 -->
+    <div id="chartContainer" class="chart-container">
+        <div class="chart-title">📈 近7天心情趋势</div>
+        <canvas id="moodChart"></canvas>
+    </div>
 </div>
 
 <div id="historyModal" style="display: none;" class="modal-mask">
@@ -318,6 +383,7 @@
     let journal = {};
     let currentDate = getTodayDate();
     let isTransitioning = false;
+    let moodChart = null;
 
     const dom = {
         dashboard: document.getElementById('dashboardContainer'),
@@ -339,7 +405,9 @@
         importFile: document.getElementById('importFileInput'),
         modal: document.getElementById('historyModal'),
         historyContent: document.getElementById('historyContent'),
-        closeModal: document.getElementById('closeHistoryBtn')
+        closeModal: document.getElementById('closeHistoryBtn'),
+        statsBtn: document.getElementById('statsBtn'),
+        chartContainer: document.getElementById('chartContainer')
     };
 
     function getTodayDate() {
@@ -366,6 +434,105 @@
         setTimeout(() => toast.remove(), 2000);
     }
 
+    // ========== 图表数据生成 ==========
+    function getLast7Days() {
+        const days = [];
+        for (let i = 6; i >= 0; i--) {
+            days.push(addDays(getTodayDate(), -i));
+        }
+        return days;
+    }
+
+    function getMoodTrendData() {
+        const days = getLast7Days();
+        const labels = [];
+        const moodValues = [];
+        const validIndices = [];
+
+        days.forEach((date, idx) => {
+            const label = date.slice(5); // MM-DD
+            labels.push(label);
+            const mood = journal[date]?.mood;
+            if (mood !== undefined && mood !== null && journal[date]?._hasUserRated) {
+                moodValues.push(mood);
+                validIndices.push(idx);
+            } else {
+                moodValues.push(null);
+            }
+        });
+
+        return { labels, moodValues, validIndices };
+    }
+
+    function renderChart() {
+        const { labels, moodValues } = getMoodTrendData();
+        
+        if (moodChart) {
+            moodChart.destroy();
+        }
+
+        const ctx = document.getElementById('moodChart').getContext('2d');
+        
+        // 构建数据集：断开处理（null 值导致线段断开）
+        moodChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '心情值',
+                    data: moodValues,
+                    borderColor: '#f97316',
+                    backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#f97316',
+                    tension: 0.2,
+                    spanGaps: false  // 关键：null 处断开
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        min: 1,
+                        max: 5,
+                        stepSize: 1,
+                        title: { display: true, text: '心情 (1~5星)' }
+                    },
+                    x: {
+                        title: { display: true, text: '日期' }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                const value = context.raw;
+                                if (value === null) return '无记录';
+                                return `${value} 星`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function toggleChart() {
+        const isVisible = dom.chartContainer.classList.contains('show');
+        if (isVisible) {
+            dom.chartContainer.classList.remove('show');
+            dom.statsBtn.classList.remove('active');
+        } else {
+            renderChart();
+            dom.chartContainer.classList.add('show');
+            dom.statsBtn.classList.add('active');
+        }
+    }
+
+    // ========== 原有功能 ==========
     function loadData() {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) { journal = JSON.parse(stored); return; }
@@ -418,11 +585,14 @@
         showToast('🗑️ 已永久删除');
     }
 
-    function updateGlobal(id, newText) {
+    function updateGlobal(id, newText, newDueDate) {
         const future = Object.keys(journal).filter(d => d >= currentDate).sort();
         for (let d of future) {
             const todo = journal[d].todos.find(t => t.id === id);
-            if (todo) todo.text = newText;
+            if (todo) {
+                todo.text = newText;
+                todo.dueDate = newDueDate;
+            }
         }
         saveData();
         renderAll();
@@ -445,6 +615,9 @@
                 currentDate = getTodayDate();
                 renderAll();
                 showToast('📥 导入成功');
+                if (dom.chartContainer.classList.contains('show')) {
+                    renderChart();
+                }
             } catch(err) { alert('文件格式错误'); }
         };
         reader.readAsText(file);
@@ -476,7 +649,7 @@
                 const s = document.createElement('span');
                 s.className = 'star default-star';
                 s.textContent = '☆';
-                s.onclick = () => { data.mood = i; data._hasUserRated = true; saveData(); renderMood(); showToast(`心情 ${i} 星`); };
+                s.onclick = () => { data.mood = i; data._hasUserRated = true; saveData(); renderMood(); showToast(`心情 ${i} 星`); if (dom.chartContainer.classList.contains('show')) renderChart(); };
                 dom.starContainer.appendChild(s);
             }
             const hint = document.createElement('span');
@@ -491,7 +664,7 @@
             const s = document.createElement('span');
             s.className = `star ${i<=val ? 'active' : ''}`;
             s.textContent = '★';
-            s.onclick = () => { data.mood = i; saveData(); renderMood(); showToast(`心情 ${i} 星`); };
+            s.onclick = () => { data.mood = i; saveData(); renderMood(); showToast(`心情 ${i} 星`); if (dom.chartContainer.classList.contains('show')) renderChart(); };
             dom.starContainer.appendChild(s);
         }
     }
@@ -502,6 +675,31 @@
         dom.emptyHint.style.display = data.diary ? 'none' : 'block';
     }
     function bindDiary() { dom.diaryInput.oninput = () => { getCurrent().diary = dom.diaryInput.value; saveData(); dom.emptyHint.style.display = dom.diaryInput.value ? 'none' : 'block'; }; }
+
+    function enterEditMode(li, todo) {
+        li.innerHTML = `
+            <div class="edit-mode">
+                <input type="text" class="edit-text-input" value="${escapeHtml(todo.text)}">
+                <input type="date" class="edit-due-input" value="${todo.dueDate || ''}">
+                <div class="edit-actions">
+                    <button class="edit-save-btn">保存</button>
+                    <button class="edit-cancel-btn">取消</button>
+                </div>
+            </div>
+        `;
+        const textInput = li.querySelector('.edit-text-input');
+        const dueInput = li.querySelector('.edit-due-input');
+        const saveBtn = li.querySelector('.edit-save-btn');
+        const cancelBtn = li.querySelector('.edit-cancel-btn');
+        
+        saveBtn.onclick = () => {
+            const newText = textInput.value.trim();
+            if (!newText) return alert('内容不能为空');
+            const newDueDate = dueInput.value || null;
+            updateGlobal(todo.id, newText, newDueDate);
+        };
+        cancelBtn.onclick = () => renderTodos();
+    }
 
     function renderTodos() {
         const todos = getCurrent().todos || [];
@@ -541,7 +739,7 @@
             const editBtn = document.createElement('button');
             editBtn.innerHTML = '✏️';
             editBtn.className = 'todo-edit-icon';
-            editBtn.onclick = () => enterEdit(li, t);
+            editBtn.onclick = () => enterEditMode(li, t);
             const delBtn = document.createElement('button');
             delBtn.innerHTML = '🗑️';
             delBtn.className = 'todo-delete-icon';
@@ -553,21 +751,6 @@
         }
         const completedCount = sorted.filter(t => t.completed).length;
         dom.stats.innerText = `✅ 待办完成 ${completedCount}/${sorted.length} · 💾 自动保存`;
-    }
-
-    function enterEdit(li, todo) {
-        li.innerHTML = '';
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.value = todo.text;
-        input.className = 'edit-input';
-        const save = document.createElement('button');
-        save.textContent = '✔️ 保存';
-        const cancel = document.createElement('button');
-        cancel.textContent = '❌ 取消';
-        save.onclick = () => { const newText = input.value.trim(); if(newText) updateGlobal(todo.id, newText); };
-        cancel.onclick = () => renderTodos();
-        li.append(input, save, cancel);
     }
 
     function addTodo() {
@@ -603,6 +786,9 @@
         showToast(`已切换到 ${formatDate(currentDate)}`);
         window.scrollTo({ top: 0, behavior: 'smooth' });
         isTransitioning = false;
+        if (dom.chartContainer.classList.contains('show')) {
+            renderChart();
+        }
     }
 
     function saveCurrentDate() { localStorage.setItem('lululist_current_date', currentDate); }
@@ -612,34 +798,4 @@
         dom.datePicker.min = getEarliest();
         dom.datePicker.max = getTodayDate();
         dom.datePicker.value = currentDate;
-        dom.dateHint.innerText = `📆 近${MAX_DAYS}天`;
-    }
-
-    function renderAll() {
-        ensureData();
-        dom.badge.innerText = `📌 ${formatDate(currentDate)}`;
-        renderMood();
-        renderDiary();
-        renderTodos();
-    }
-
-    function init() {
-        loadData();
-        currentDate = loadCurrentDate();
-        initPicker();
-        bindDiary();
-        renderAll();
-        dom.gotoBtn.onclick = () => { const val = dom.datePicker.value; if(val) goToDate(val); };
-        dom.addBtn.onclick = addTodo;
-        dom.todoText.onkeypress = e => { if(e.key === 'Enter') addTodo(); };
-        dom.historyBtn.onclick = showHistory;
-        dom.exportBtn.onclick = exportBackup;
-        dom.importBtn.onclick = () => dom.importFile.click();
-        dom.importFile.onchange = e => { if(e.target.files[0]) importBackup(e.target.files[0]); };
-        dom.closeModal.onclick = () => dom.modal.style.display = 'none';
-        window.onbeforeunload = () => saveCurrentDate();
-    }
-    init();
-</script>
-</body>
-</html>
+        dom.dateHint.innerText = `
