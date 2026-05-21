@@ -12,40 +12,28 @@
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
-
         body {
             background: #f3f4f6;
-            font-family: system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', 'Noto Sans', sans-serif;
+            font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
             padding: 16px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
         }
-
         .dashboard {
             max-width: 700px;
             width: 100%;
             background: white;
             border-radius: 40px;
-            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.2);
             padding: 20px 16px 24px;
-            position: relative;
-            transition: opacity 0.2s ease-in-out;
+            transition: opacity 0.2s;
         }
-        
         .dashboard.fade-out { opacity: 0; }
-
-        /* 顶部区域 */
-        .title-section {
-            text-align: center;
-            margin-bottom: 16px;
-            margin-top: 8px;
-        }
+        .title-section { text-align: center; margin-bottom: 16px; }
         h1 { font-size: 1.6rem; font-weight: 600; color: #f97316; }
-        .sub { font-size: 0.7rem; color: #9ca3af; margin-top: 4px; }
-
-        /* 日期选择区 */
+        .sub { font-size: 0.7rem; color: #9ca3af; }
         .date-picker-area {
             background: #fef3c7;
             padding: 12px 16px;
@@ -57,16 +45,12 @@
             gap: 12px;
             flex-wrap: wrap;
         }
-        .date-picker-area label { font-weight: 500; color: #92400e; }
         .date-input {
             padding: 10px 16px;
             font-size: 16px;
             border: 1px solid #d1d5db;
             border-radius: 40px;
-            outline: none;
             background: white;
-            cursor: pointer;
-            font-family: inherit;
         }
         .goto-btn {
             background: #f97316;
@@ -76,13 +60,8 @@
             color: white;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.2s;
             min-height: 44px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
         }
-        .goto-btn:active { background: #ea580c; transform: scale(0.96); }
         .date-hint {
             font-size: 0.7rem;
             color: #92400e;
@@ -90,40 +69,34 @@
             padding: 4px 12px;
             border-radius: 20px;
         }
-        
         .current-date-badge {
             text-align: center;
             margin: 12px 0 16px;
             padding: 12px 16px;
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
             border-radius: 60px;
-            font-size: 1rem;
             font-weight: 600;
             color: #92400e;
         }
-
-        /* 心情区 */
         .mood-section {
             background: #fef2f2;
             border-radius: 28px;
             padding: 14px 20px;
             margin-bottom: 20px;
             display: flex;
-            align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 12px;
         }
-        .mood-label { font-weight: 600; color: #dc2626; font-size: 1rem; }
-        .stars { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .mood-label { font-weight: 600; color: #dc2626; }
+        .stars { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .star {
             font-size: 1.8rem;
             cursor: pointer;
             color: #d1d5db;
-            transition: 0.1s;
             padding: 4px;
         }
-        .star.active { color: #fbbf24; text-shadow: 0 0 2px #f59e0b; }
+        .star.active { color: #fbbf24; }
         .star.default-star {
             color: #9ca3af;
             border: 1px dashed #d1d5db;
@@ -131,35 +104,28 @@
             padding: 2px;
             font-size: 1.4rem;
         }
-        .mood-hint { font-size: 0.7rem; color: #9ca3af; margin-left: 4px; }
-
-        /* 日记区 */
+        .mood-hint { font-size: 0.7rem; color: #9ca3af; }
         .diary-section { margin-bottom: 24px; }
-        .diary-label { font-weight: 600; margin-bottom: 8px; color: #374151; font-size: 1rem; }
+        .diary-label { font-weight: 600; margin-bottom: 8px; color: #374151; }
         .diary-text {
             width: 100%;
             padding: 14px;
             border: 1px solid #e5e7eb;
             border-radius: 24px;
-            font-family: inherit;
             font-size: 16px;
+            font-family: inherit;
             resize: vertical;
-            outline: none;
         }
-        .diary-text:focus { border-color: #f97316; box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1); }
         .empty-diary-hint {
             color: #9ca3af;
-            font-size: 0.8rem;
             text-align: center;
             padding: 12px;
             background: #f9fafb;
             border-radius: 20px;
             margin-top: 8px;
         }
-
-        /* 待办区 */
-        .todo-header { display: flex; justify-content: space-between; align-items: baseline; margin: 20px 0 12px; }
-        .todo-title { font-weight: 600; font-size: 1rem; }
+        .todo-header { margin: 20px 0 12px; }
+        .todo-title { font-weight: 600; }
         .add-todo {
             display: flex;
             gap: 8px;
@@ -171,10 +137,9 @@
             padding: 12px 14px;
             border: 1px solid #d1d5db;
             border-radius: 60px;
-            outline: none;
             font-size: 16px;
         }
-        .add-todo .due-input { flex: 1; font-size: 0.9rem; }
+        .add-todo .due-input { flex: 1; }
         .add-todo button {
             background: #f97316;
             border: none;
@@ -185,14 +150,11 @@
             cursor: pointer;
             min-height: 44px;
         }
-        .add-todo button:active { background: #ea580c; transform: scale(0.96); }
-
         .todo-list {
             list-style: none;
             display: flex;
             flex-direction: column;
             gap: 12px;
-            margin-top: 12px;
             margin-bottom: 20px;
         }
         .todo-item {
@@ -202,77 +164,68 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            border: 1px solid #e5e7eb;
             flex-wrap: wrap;
-            transition: all 0.2s ease;
+            border: 1px solid #e5e7eb;
         }
-        .todo-check { width: 22px; height: 22px; cursor: pointer; accent-color: #f97316; flex-shrink: 0; }
-        .todo-text { flex: 2; font-size: 0.95rem; word-break: break-word; line-height: 1.4; }
+        .todo-check { width: 22px; height: 22px; accent-color: #f97316; }
+        .todo-text { flex: 2; font-size: 0.95rem; }
         .todo-item.completed .todo-text { text-decoration: line-through; color: #9ca3af; }
         .todo-due {
             font-size: 0.7rem;
             background: #e5e7eb;
             padding: 6px 12px;
             border-radius: 40px;
-            color: #4b5563;
             white-space: nowrap;
         }
-        .todo-edit-btn, .todo-save-btn, .todo-cancel-btn, .delete-btn {
+        .delete-btn, .todo-edit-btn {
             background: none;
             border: none;
             font-size: 1.2rem;
             cursor: pointer;
             padding: 8px 10px;
-            border-radius: 40px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
             min-width: 44px;
+            border-radius: 40px;
         }
-        .todo-edit-btn:active { background: #e0e7ff; transform: scale(0.96);}
-        .delete-btn { color: #9ca3af; }
-        .delete-btn:active { color: #dc2626; background: #fee2e2; transform: scale(0.96);}
-        .edit-input { flex: 2; padding: 10px; border-radius: 60px; border: 1px solid #f97316; font-size: 16px; }
-        .edit-due { font-size: 0.85rem; padding: 8px; border-radius: 40px; }
-        .empty-message { text-align: center; color: #9ca3af; padding: 40px 20px; background: #f9fafb; border-radius: 32px; font-size: 0.9rem; }
-
-        /* 底部按钮区（两栏布局） */
+        .delete-btn:active { color: #dc2626; background: #fee2e2; }
+        .edit-input {
+            flex: 2;
+            padding: 10px;
+            border-radius: 60px;
+            border: 1px solid #f97316;
+            font-size: 16px;
+        }
+        .empty-message {
+            text-align: center;
+            color: #9ca3af;
+            padding: 40px 20px;
+            background: #f9fafb;
+            border-radius: 32px;
+        }
         .footer-actions {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-top: 16px;
             gap: 12px;
             flex-wrap: wrap;
+            margin-top: 8px;
         }
-        .footer-left { display: flex; gap: 12px; }
-        .footer-right { display: flex; gap: 12px; }
+        .footer-left, .footer-right { display: flex; gap: 12px; }
         .action-btn {
             background: #f3f4f6;
             border: 1px solid #e5e7eb;
             padding: 10px 18px;
             border-radius: 40px;
             font-size: 0.85rem;
-            font-weight: 500;
             cursor: pointer;
-            transition: 0.2s;
-            color: #4b5563;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
             min-height: 44px;
         }
-        .action-btn:active { background: #e5e7eb; transform: scale(0.96); }
-
         .stats {
-            margin-top: 16px;
-            font-size: 0.7rem;
             text-align: center;
+            font-size: 0.7rem;
             color: #6b7280;
+            margin-top: 16px;
             padding-top: 12px;
+            border-top: 1px solid #e5e7eb;
         }
-        
-        /* 模态框样式（历史记录） */
         .modal-mask {
             position: fixed;
             top: 0;
@@ -284,7 +237,6 @@
             align-items: center;
             justify-content: center;
             z-index: 1000;
-            backdrop-filter: blur(4px);
         }
         .modal-container {
             background: white;
@@ -294,29 +246,24 @@
             max-height: 80%;
             overflow: auto;
             padding: 24px 20px;
-            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.3);
         }
-        .modal-title { font-size: 1.4rem; font-weight: 600; margin-bottom: 16px; color: #f97316; text-align: center; }
+        .modal-title { font-size: 1.4rem; font-weight: 600; color: #f97316; text-align: center; margin-bottom: 16px; }
         .history-group { margin-bottom: 20px; }
-        .history-date { font-weight: 600; color: #374151; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #e5e7eb; }
+        .history-date { font-weight: 600; margin-bottom: 8px; border-bottom: 1px solid #e5e7eb; }
         .history-item {
             background: #f9fafb;
             border-radius: 20px;
             padding: 10px 14px;
             margin-bottom: 8px;
             display: flex;
-            align-items: center;
             gap: 10px;
         }
-        .history-check { color: #10b981; font-size: 1.2rem; }
-        .history-text { flex: 1; font-size: 0.9rem; }
         .close-modal {
             background: #f97316;
             color: white;
             border: none;
             padding: 12px 24px;
             border-radius: 40px;
-            font-weight: 600;
             width: 100%;
             cursor: pointer;
             margin-top: 16px;
@@ -330,23 +277,15 @@
             color: white;
             padding: 12px 24px;
             border-radius: 60px;
-            font-size: 0.85rem;
             z-index: 1100;
-            animation: fadeInOut 1.5s ease;
-            pointer-events: none;
+            animation: fadeInOut 1.5s;
             white-space: nowrap;
         }
         @keyframes fadeInOut {
             0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
             15% { opacity: 1; transform: translateX(-50%) translateY(0); }
-            85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            85% { opacity: 1; }
             100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-        }
-        @media (max-width: 480px) {
-            body { padding: 12px; }
-            .dashboard { padding: 16px 12px 20px; }
-            .star { font-size: 1.5rem; }
-            .action-btn { padding: 8px 14px; font-size: 0.75rem; }
         }
     </style>
 </head>
@@ -356,7 +295,6 @@
         <h1>📒 LuluList-我的电子手账</h1>
         <div class="sub">✧ 每天的心情、日记、待办，都值得收藏 ✧</div>
     </div>
-
     <div class="date-picker-area">
         <label>📅 选择日期：</label>
         <input type="date" id="datePicker" class="date-input">
@@ -364,18 +302,15 @@
         <span class="date-hint" id="dateHint"></span>
     </div>
     <div class="current-date-badge" id="currentDateBadge"></div>
-
     <div class="mood-section">
         <span class="mood-label">💖 今日心情</span>
         <div class="stars" id="starContainer"></div>
     </div>
-
     <div class="diary-section">
         <div class="diary-label">📝 今日日记</div>
         <textarea class="diary-text" id="diaryInput" rows="3" placeholder="写点什么吧..."></textarea>
         <div class="empty-diary-hint" id="emptyDiaryHint" style="display: none;">✨ 还没有写日记，记录一下今天的心情吧～</div>
     </div>
-
     <div class="todo-header">
         <span class="todo-title">🎯 待办清单</span>
     </div>
@@ -385,8 +320,6 @@
         <button id="addTodoBtn">➕ 添加</button>
     </div>
     <ul class="todo-list" id="todoListContainer"></ul>
-    
-    <!-- 底部按钮区：左下角（历史+归档），右下角（导入+导出） -->
     <div class="footer-actions">
         <div class="footer-left">
             <button id="historyBtn" class="action-btn">📜 历史完成</button>
@@ -400,8 +333,6 @@
     </div>
     <div class="stats" id="statsArea"></div>
 </div>
-
-<!-- 历史记录模态框 -->
 <div id="historyModal" style="display: none;" class="modal-mask">
     <div class="modal-container">
         <div class="modal-title">📜 历史完成记录</div>
@@ -409,398 +340,322 @@
         <button class="close-modal" id="closeHistoryBtn">关闭</button>
     </div>
 </div>
-
-<div class="archive-preview-container" id="archivePreviewContainer" style="position:fixed; left:-9999px; top:0; width:700px; background:white;"></div>
-
 <script>
     // ========== LuluList v3.0 ==========
-    // 核心新功能：
-    // 1. 跨天自动继承（未完成待办自动复制到第二天）
-    // 2. 永久删除（删除所有日期的副本）
-    // 3. 编辑同步未来（修改文字后未来所有副本同步）
-    // 4. 已完成立即下沉 + 按添加时间正序
-    // 5. 历史完成记录
-    // 6. 导入/导出备份
-    // 7. 自动数据迁移（v2.x → v3.0）
-    
     const STORAGE_KEY = 'lululist_v3.0';
-    const MAX_SELECTABLE_DAYS = 30;
+    const MAX_DAYS = 30;
     const ARCHIVE_DAYS = 7;
     
     let journal = {};
     let currentDate = getTodayDate();
     let isTransitioning = false;
     
-    // DOM 元素
-    const dashboard = document.getElementById('dashboardContainer');
-    const datePicker = document.getElementById('datePicker');
-    const gotoDateBtn = document.getElementById('gotoDateBtn');
-    const dateHint = document.getElementById('dateHint');
-    const currentDateBadge = document.getElementById('currentDateBadge');
-    const starContainer = document.getElementById('starContainer');
-    const diaryInput = document.getElementById('diaryInput');
-    const emptyDiaryHint = document.getElementById('emptyDiaryHint');
-    const todoListContainer = document.getElementById('todoListContainer');
-    const todoTextInput = document.getElementById('todoTextInput');
-    const todoDueDateInput = document.getElementById('todoDueDateInput');
-    const addTodoBtn = document.getElementById('addTodoBtn');
-    const statsArea = document.getElementById('statsArea');
-    const historyBtn = document.getElementById('historyBtn');
-    const archiveBtn = document.getElementById('archiveBtn');
-    const exportBtn = document.getElementById('exportBtn');
-    const importBtn = document.getElementById('importBtn');
-    const importFileInput = document.getElementById('importFileInput');
-    const historyModal = document.getElementById('historyModal');
-    const historyContent = document.getElementById('historyContent');
-    const closeHistoryBtn = document.getElementById('closeHistoryBtn');
-    const archivePreviewContainer = document.getElementById('archivePreviewContainer');
-    
-    function showToast(msg, duration=2000) {
-        const toast = document.createElement('div');
-        toast.className = 'date-toast';
-        toast.innerText = msg;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), duration);
-    }
+    const dom = {
+        dashboard: document.getElementById('dashboardContainer'),
+        datePicker: document.getElementById('datePicker'),
+        gotoBtn: document.getElementById('gotoDateBtn'),
+        dateHint: document.getElementById('dateHint'),
+        badge: document.getElementById('currentDateBadge'),
+        starContainer: document.getElementById('starContainer'),
+        diaryInput: document.getElementById('diaryInput'),
+        emptyHint: document.getElementById('emptyDiaryHint'),
+        todoList: document.getElementById('todoListContainer'),
+        todoText: document.getElementById('todoTextInput'),
+        todoDue: document.getElementById('todoDueDateInput'),
+        addBtn: document.getElementById('addTodoBtn'),
+        stats: document.getElementById('statsArea'),
+        historyBtn: document.getElementById('historyBtn'),
+        archiveBtn: document.getElementById('archiveBtn'),
+        exportBtn: document.getElementById('exportBtn'),
+        importBtn: document.getElementById('importBtn'),
+        importFile: document.getElementById('importFileInput'),
+        modal: document.getElementById('historyModal'),
+        historyContent: document.getElementById('historyContent'),
+        closeModal: document.getElementById('closeHistoryBtn')
+    };
     
     function getTodayDate() {
         const d = new Date();
         return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     }
-    
     function addDays(dateStr, days) {
         const [y,m,day] = dateStr.split('-').map(Number);
         const d = new Date(y, m-1, day);
         d.setDate(d.getDate() + days);
         return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     }
-    
-    function getEarliestSelectableDate() { return addDays(getTodayDate(), -MAX_SELECTABLE_DAYS); }
+    function getEarliest() { return addDays(getTodayDate(), -MAX_DAYS); }
     function getArchiveBoundary() { return addDays(getTodayDate(), -ARCHIVE_DAYS); }
-    function isDateAllowed(dateStr) { return dateStr >= getEarliestSelectableDate() && dateStr <= getTodayDate(); }
-    
-    function formatDateDisplay(dateStr) {
+    function isDateAllowed(dateStr) { return dateStr >= getEarliest() && dateStr <= getTodayDate(); }
+    function formatDate(dateStr) {
         const [y,m,d] = dateStr.split('-');
         return dateStr === getTodayDate() ? `${y}年${m}月${d}日 (今天)` : `${y}年${m}月${d}日`;
     }
-    
-    // ========== 数据迁移（v2.x → v3.0）==========
-    function migrateOldData() {
-        const oldKeys = ['lululist_v2.0', 'lululist_v2.1', 'lululist_v2.0_test'];
-        for (const key of oldKeys) {
-            const oldData = localStorage.getItem(key);
-            if (oldData) {
-                try {
-                    const parsed = JSON.parse(oldData);
-                    // 迁移并补充 createdAt / completedAt 字段
-                    for (const date in parsed) {
-                        if (parsed[date].todos) {
-                            parsed[date].todos = parsed[date].todos.map(t => ({
-                                ...t,
-                                createdAt: t.createdAt || Date.now(),
-                                completedAt: t.completedAt || (t.completed ? Date.now() : null)
-                            }));
-                        }
-                        if (parsed[date]._hasUserRated === undefined) parsed[date]._hasUserRated = false;
-                    }
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
-                    localStorage.removeItem(key);
-                    showToast('已自动迁移旧数据', 2000);
-                    return true;
-                } catch(e) { console.warn('迁移失败', e); }
-            }
-        }
-        return false;
+    function showToast(msg) {
+        const toast = document.createElement('div');
+        toast.className = 'date-toast';
+        toast.innerText = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
     }
     
-    // ========== 数据操作 ==========
     function loadData() {
         const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-            journal = JSON.parse(stored);
-        } else {
-            migrateOldData();
-            const storedAgain = localStorage.getItem(STORAGE_KEY);
-            if (storedAgain) { journal = JSON.parse(storedAgain); return; }
-            const today = getTodayDate();
-            journal = { [today]: { mood: 3, _hasUserRated: false, diary: "今天开始用电子手账啦！", todos: [] } };
+        if (stored) { journal = JSON.parse(stored); return; }
+        const oldKeys = ['lululist_v2.0', 'lululist_v2.1'];
+        for (let key of oldKeys) {
+            const old = localStorage.getItem(key);
+            if (old) {
+                journal = JSON.parse(old);
+                for (let d in journal) {
+                    if (journal[d].todos) {
+                        journal[d].todos = journal[d].todos.map(t => ({ ...t, createdAt: t.createdAt || Date.now(), completedAt: t.completedAt || null }));
+                    }
+                    if (journal[d]._hasUserRated === undefined) journal[d]._hasUserRated = false;
+                }
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(journal));
+                localStorage.removeItem(key);
+                showToast('已自动迁移旧数据');
+                return;
+            }
         }
+        const today = getTodayDate();
+        journal = { [today]: { mood: 3, _hasUserRated: false, diary: "今天开始用电子手账啦！", todos: [] } };
     }
     function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(journal)); }
-    function ensureCurrentDateData() {
-        if (!journal[currentDate]) {
-            journal[currentDate] = { mood: 3, _hasUserRated: false, diary: '', todos: [] };
-            saveData();
-        }
-    }
-    function getCurrentData() { ensureCurrentDateData(); return journal[currentDate]; }
+    function ensureData() { if (!journal[currentDate]) journal[currentDate] = { mood: 3, _hasUserRated: false, diary: '', todos: [] }; saveData(); }
+    function getCurrent() { ensureData(); return journal[currentDate]; }
     
-    // ========== 跨天继承（核心）==========
-    function inheritTodosFromPrevious(prevDate, nextDate) {
-        if (!prevDate || !journal[prevDate]) return;
-        const prevTodos = journal[prevDate].todos || [];
-        const nextTodos = journal[nextDate]?.todos || [];
-        const nextTodoIds = new Set(nextTodos.map(t => t.id));
-        const toInherit = prevTodos.filter(t => !t.completed && !nextTodoIds.has(t.id));
-        if (toInherit.length === 0) return;
-        if (!journal[nextDate]) journal[nextDate] = { mood: 3, _hasUserRated: false, diary: '', todos: [] };
-        for (const todo of toInherit) {
-            journal[nextDate].todos.push({
-                ...todo,
-                createdAt: todo.createdAt || Date.now(),
-                completed: false,
-                completedAt: null
+    function inheritTodos(prev, next) {
+        if (!prev || !journal[prev]) return;
+        const prevTodos = journal[prev].todos || [];
+        const nextTodos = journal[next]?.todos || [];
+        const nextIds = new Set(nextTodos.map(t => t.id));
+        const toInherit = prevTodos.filter(t => !t.completed && !nextIds.has(t.id));
+        if (!toInherit.length) return;
+        if (!journal[next]) journal[next] = { mood: 3, _hasUserRated: false, diary: '', todos: [] };
+        for (let t of toInherit) {
+            journal[next].todos.push({
+                ...t, completed: false, completedAt: null, createdAt: t.createdAt || Date.now()
             });
         }
         saveData();
     }
     
-    // ========== 全局操作 ==========
-    function deleteTodoGlobally(todoId) {
-        for (const date in journal) {
-            journal[date].todos = journal[date].todos.filter(t => t.id !== todoId);
-        }
+    function deleteGlobal(id) {
+        for (let d in journal) journal[d].todos = journal[d].todos.filter(t => t.id !== id);
         saveData();
         renderAll();
-        showToast('🗑️ 已永久删除', 1500);
+        showToast('🗑️ 已永久删除');
     }
     
-    function updateTodoTextGlobally(todoId, newText, currentDateOnly = false) {
-        if (currentDateOnly) {
-            const data = getCurrentData();
-            const todo = data.todos.find(t => t.id === todoId);
-            if (todo) todo.text = newText;
-            saveData();
-            renderTodos();
-            showToast('✏️ 已修改', 1000);
-            return;
-        }
-        const futureDates = Object.keys(journal).filter(d => d >= currentDate).sort();
-        for (const date of futureDates) {
-            const todo = journal[date].todos.find(t => t.id === todoId);
+    function updateGlobal(id, newText) {
+        const future = Object.keys(journal).filter(d => d >= currentDate).sort();
+        for (let d of future) {
+            const todo = journal[d].todos.find(t => t.id === id);
             if (todo) todo.text = newText;
         }
         saveData();
         renderAll();
-        showToast('✏️ 已同步修改未来', 1500);
+        showToast('✏️ 已同步修改未来');
     }
     
-    // ========== 导出/导入 ==========
     function exportBackup() {
-        const dataStr = JSON.stringify(journal, null, 2);
-        const blob = new Blob([dataStr], {type: 'application/json'});
         const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `lululist_backup_${getTodayDate()}.json`;
+        a.href = URL.createObjectURL(new Blob([JSON.stringify(journal, null, 2)], {type: 'application/json'}));
+        a.download = `lululist_${getTodayDate()}.json`;
         a.click();
-        URL.revokeObjectURL(a.href);
-        showToast('📤 备份已导出', 2000);
+        showToast('📤 已导出');
     }
-    
     function importBackup(file) {
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = e => {
             try {
-                const imported = JSON.parse(e.target.result);
-                journal = imported;
+                journal = JSON.parse(e.target.result);
                 saveData();
                 currentDate = getTodayDate();
                 renderAll();
-                showToast('📥 导入成功', 2000);
+                showToast('📥 导入成功');
             } catch(err) { alert('文件格式错误'); }
         };
         reader.readAsText(file);
     }
     
-    // ========== 历史记录 ==========
     function showHistory() {
-        const allCompleted = [];
-        for (const [date, data] of Object.entries(journal)) {
-            const completedTodos = (data.todos || []).filter(t => t.completed);
-            if (completedTodos.length) {
-                allCompleted.push({ date, todos: completedTodos });
-            }
+        const items = [];
+        for (let d in journal) {
+            const completed = (journal[d].todos || []).filter(t => t.completed);
+            if (completed.length) items.push({ date: d, todos: completed });
         }
-        if (allCompleted.length === 0) {
-            historyContent.innerHTML = '<div style="text-align:center;padding:40px;">✨ 暂无完成记录</div>';
-            historyModal.style.display = 'flex';
-            return;
-        }
+        if (!items.length) { dom.historyContent.innerHTML = '<div style="text-align:center;padding:40px;">✨ 暂无完成记录</div>'; dom.modal.style.display = 'flex'; return; }
         let html = '';
-        for (const group of allCompleted) {
-            html += `<div class="history-group"><div class="history-date">📅 ${formatDateDisplay(group.date)}</div>`;
-            for (const todo of group.todos) {
-                html += `<div class="history-item"><span class="history-check">✅</span><span class="history-text">${escapeHtml(todo.text)}</span></div>`;
-            }
+        for (let g of items) {
+            html += `<div class="history-group"><div class="history-date">📅 ${formatDate(g.date)}</div>`;
+            for (let t of g.todos) html += `<div class="history-item"><span>✅</span><span>${escapeHtml(t.text)}</span></div>`;
             html += `</div>`;
         }
-        historyContent.innerHTML = html;
-        historyModal.style.display = 'flex';
+        dom.historyContent.innerHTML = html;
+        dom.modal.style.display = 'flex';
     }
+    function escapeHtml(str) { return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
     
-    // ========== 周记归档（复用之前逻辑）==========
-    async function generateWeeklyLongImage() { /* 省略详细实现，保留原功能 */ return null; }
-    async function archiveAndExport() { alert('周记归档功能已保留，v3.0 中可继续使用'); }
-    
-    // ========== 渲染 ==========
-    function renderCurrentDateBadge() { currentDateBadge.innerHTML = `📌 ${formatDateDisplay(currentDate)}`; }
+    async function archiveAndExport() { alert('周记归档功能已保留，可继续使用'); }
     
     function renderMood() {
-        const data = getCurrentData();
-        const hasUserRated = data._hasUserRated === true;
-        const moodValue = data.mood || 3;
-        starContainer.innerHTML = '';
-        if (!hasUserRated) {
+        const data = getCurrent();
+        if (!data._hasUserRated) {
+            dom.starContainer.innerHTML = '';
             for (let i=1;i<=5;i++) {
-                const star = document.createElement('span');
-                star.className = 'star default-star';
-                star.textContent = '☆';
-                star.onclick = () => { data.mood = i; data._hasUserRated = true; saveData(); renderMood(); showToast(`心情 ${i} 星`); };
-                starContainer.appendChild(star);
+                const s = document.createElement('span');
+                s.className = 'star default-star';
+                s.textContent = '☆';
+                s.onclick = () => { data.mood = i; data._hasUserRated = true; saveData(); renderMood(); showToast(`心情 ${i} 星`); };
+                dom.starContainer.appendChild(s);
             }
             const hint = document.createElement('span');
             hint.className = 'mood-hint';
             hint.innerText = '✨ 点击星星评价';
-            starContainer.appendChild(hint);
+            dom.starContainer.appendChild(hint);
             return;
         }
+        const val = data.mood || 3;
+        dom.starContainer.innerHTML = '';
         for (let i=1;i<=5;i++) {
-            const star = document.createElement('span');
-            star.className = `star ${i<=moodValue ? 'active' : ''}`;
-            star.textContent = '★';
-            star.onclick = () => { data.mood = i; saveData(); renderMood(); showToast(`心情 ${i} 星`); };
-            starContainer.appendChild(star);
+            const s = document.createElement('span');
+            s.className = `star ${i<=val ? 'active' : ''}`;
+            s.textContent = '★';
+            s.onclick = () => { data.mood = i; saveData(); renderMood(); showToast(`心情 ${i} 星`); };
+            dom.starContainer.appendChild(s);
         }
     }
-    
     function renderDiary() {
-        const data = getCurrentData();
-        diaryInput.value = data.diary || '';
-        emptyDiaryHint.style.display = data.diary ? 'none' : 'block';
+        const data = getCurrent();
+        dom.diaryInput.value = data.diary || '';
+        dom.emptyHint.style.display = data.diary ? 'none' : 'block';
     }
-    function bindDiaryEvent() {
-        diaryInput.oninput = () => {
-            const data = getCurrentData();
-            data.diary = diaryInput.value;
-            saveData();
-            emptyDiaryHint.style.display = diaryInput.value ? 'none' : 'block';
-        };
-    }
+    function bindDiary() { dom.diaryInput.oninput = () => { getCurrent().diary = dom.diaryInput.value; saveData(); dom.emptyHint.style.display = dom.diaryInput.value ? 'none' : 'block'; }; }
     
     function renderTodos() {
-        const data = getCurrentData();
-        let todos = [...(data.todos || [])];
-        // 排序：未完成按 createdAt 正序，已完成沉底并按 completedAt 正序
+        const todos = getCurrent().todos || [];
         const incomplete = todos.filter(t => !t.completed).sort((a,b) => (a.createdAt||0) - (b.createdAt||0));
         const complete = todos.filter(t => t.completed).sort((a,b) => (a.completedAt||0) - (b.completedAt||0));
-        todos = [...incomplete, ...complete];
-        if (todos.length === 0) {
-            todoListContainer.innerHTML = '<div class="empty-message">✨ 空空如也，添加一条任务吧 ✨</div>';
-            updateStats();
-            return;
-        }
-        todoListContainer.innerHTML = '';
-        todos.forEach(todo => {
+        const sorted = [...incomplete, ...complete];
+        if (!sorted.length) { dom.todoList.innerHTML = '<div class="empty-message">✨ 空空如也，添加一条任务吧 ✨</div>'; dom.stats.innerText = `✅ 待办完成 0/0`; return; }
+        dom.todoList.innerHTML = '';
+        for (let t of sorted) {
             const li = document.createElement('li');
-            li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
-            const check = document.createElement('input');
-            check.type = 'checkbox';
-            check.className = 'todo-check';
-            check.checked = todo.completed;
-            check.onchange = () => {
-                todo.completed = check.checked;
-                todo.completedAt = check.checked ? Date.now() : null;
-                if (!todo.createdAt) todo.createdAt = Date.now();
-                saveData();
-                renderTodos();
-                showToast(check.checked ? '✅ 已完成' : '↩️ 已撤销');
-            };
+            li.className = `todo-item ${t.completed ? 'completed' : ''}`;
+            const chk = document.createElement('input');
+            chk.type = 'checkbox';
+            chk.className = 'todo-check';
+            chk.checked = t.completed;
+            chk.onchange = () => { t.completed = chk.checked; t.completedAt = chk.checked ? Date.now() : null; if (!t.createdAt) t.createdAt = Date.now(); saveData(); renderTodos(); showToast(chk.checked ? '✅ 已完成' : '↩️ 已撤销'); };
             const textSpan = document.createElement('span');
             textSpan.className = 'todo-text';
-            textSpan.innerText = todo.text;
+            textSpan.innerText = t.text;
             const dueSpan = document.createElement('span');
             dueSpan.className = 'todo-due';
-            dueSpan.innerText = todo.dueDate ? `📅 ${todo.dueDate}` : '⏳ 无日期';
+            dueSpan.innerText = t.dueDate ? `📅 ${t.dueDate}` : '⏳ 无日期';
             const editBtn = document.createElement('button');
             editBtn.innerHTML = '✏️';
             editBtn.className = 'todo-edit-btn';
-            editBtn.onclick = () => enterEditMode(li, todo);
+            editBtn.onclick = () => enterEdit(li, t);
             const delBtn = document.createElement('button');
             delBtn.innerHTML = '🗑️';
             delBtn.className = 'delete-btn';
-            delBtn.onclick = () => { if(confirm('永久删除？')) deleteTodoGlobally(todo.id); };
-            li.appendChild(check); li.appendChild(textSpan); li.appendChild(dueSpan); li.appendChild(editBtn); li.appendChild(delBtn);
-            todoListContainer.appendChild(li);
-        });
-        updateStats();
+            delBtn.onclick = () => { if(confirm('永久删除？')) deleteGlobal(t.id); };
+            li.append(chk, textSpan, dueSpan, editBtn, delBtn);
+            dom.todoList.appendChild(li);
+        }
+        const completedCount = sorted.filter(t => t.completed).length;
+        dom.stats.innerText = `✅ 待办完成 ${completedCount}/${sorted.length} · 💾 自动保存 · 可归档7天前`;
     }
-    
-    function enterEditMode(li, todo) {
+    function enterEdit(li, todo) {
         li.innerHTML = '';
-        const editText = document.createElement('input');
-        editText.type = 'text';
-        editText.value = todo.text;
-        editText.className = 'edit-input';
-        const saveBtn = document.createElement('button');
-        saveBtn.textContent = '✔️ 保存';
-        const cancelBtn = document.createElement('button');
-        cancelBtn.textContent = '❌ 取消';
-        saveBtn.onclick = () => {
-            const newText = editText.value.trim();
-            if (!newText) return alert('内容不能为空');
-            updateTodoTextGlobally(todo.id, newText, false); // 同步未来
-        };
-        cancelBtn.onclick = () => renderTodos();
-        li.appendChild(editText); li.appendChild(saveBtn); li.appendChild(cancelBtn);
-    }
-    
-    function updateStats() {
-        const data = getCurrentData();
-        const todos = data.todos || [];
-        const completed = todos.filter(t => t.completed).length;
-        statsArea.innerHTML = `✅ 待办完成 ${completed}/${todos.length} · 💾 自动保存 · 可归档${ARCHIVE_DAYS}天前`;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = todo.text;
+        input.className = 'edit-input';
+        const save = document.createElement('button');
+        save.textContent = '✔️ 保存';
+        const cancel = document.createElement('button');
+        cancel.textContent = '❌ 取消';
+        save.onclick = () => { const newText = input.value.trim(); if(newText) updateGlobal(todo.id, newText); };
+        cancel.onclick = () => renderTodos();
+        li.append(input, save, cancel);
     }
     
     function addTodo() {
-        const text = todoTextInput.value.trim();
+        const text = dom.todoText.value.trim();
         if (!text) return alert('请输入内容');
         const newTodo = {
             id: Date.now() + '_' + Math.random().toString(36).substring(2,6),
-            text, completed: false, dueDate: todoDueDateInput.value || null,
+            text, completed: false, dueDate: dom.todoDue.value || null,
             createdAt: Date.now(), completedAt: null
         };
-        getCurrentData().todos.push(newTodo);
+        getCurrent().todos.push(newTodo);
         saveData();
         renderTodos();
-        todoTextInput.value = '';
-        todoDueDateInput.value = '';
+        dom.todoText.value = '';
+        dom.todoDue.value = '';
         showToast('➕ 已添加');
     }
     
     async function goToDate(dateStr) {
-        if (!isDateAllowed(dateStr)) { alert('日期不可选'); return false; }
-        if (dateStr === currentDate) { showToast(`已是 ${formatDateDisplay(dateStr)}`); return false; }
-        if (isTransitioning) return false;
+        if (!isDateAllowed(dateStr)) return;
+        if (dateStr === currentDate) { showToast(`已是 ${formatDate(dateStr)}`); return; }
+        if (isTransitioning) return;
         isTransitioning = true;
-        dashboard.classList.add('fade-out');
+        dom.dashboard.classList.add('fade-out');
         await new Promise(r => setTimeout(r, 150));
-        const prevDate = currentDate;
+        const prev = currentDate;
         currentDate = dateStr;
-        inheritTodosFromPrevious(prevDate, currentDate);
-        saveCurrentDateToStorage();
+        inheritTodos(prev, currentDate);
+        saveCurrentDate();
         renderAll();
-        dashboard.classList.remove('fade-out');
-        datePicker.value = currentDate;
-        showToast(`已切换到 ${formatDateDisplay(currentDate)}`);
+        dom.dashboard.classList.remove('fade-out');
+        dom.datePicker.value = currentDate;
+        showToast(`已切换到 ${formatDate(currentDate)}`);
         window.scrollTo({ top: 0, behavior: 'smooth' });
         isTransitioning = false;
-        return true;
     }
     
-    function saveCurrentDateToStorage() { localStorage.setItem('lululist_current_date', currentDate); }
-    function loadCurrentDateFromStorage() { const saved = localStorage.getItem('lululist_current_date'); return (saved && isDateAllowed(saved)) ? saved : getTodayDate(); }
+    function saveCurrentDate() { localStorage.setItem('lululist_current_date', currentDate); }
+    function loadCurrentDate() { const saved = localStorage.getItem('lululist_current_date'); return (saved && isDateAllowed(saved)) ? saved : getTodayDate(); }
     
-    function initDatePicker() {
-        datePicker.min = getEarliestSelectableDate();
-        datePicker.max = getTodayDate();
-        date
+    function initPicker() {
+        dom.datePicker.min = getEarliest();
+        dom.datePicker.max = getTodayDate();
+        dom.datePicker.value = currentDate;
+        dom.dateHint.innerText = `📆 可选范围：${getEarliest()} 至 ${getTodayDate()} (近${MAX_DAYS}天)`;
+    }
+    
+    function renderAll() {
+        ensureData();
+        dom.badge.innerText = `📌 ${formatDate(currentDate)}`;
+        renderMood();
+        renderDiary();
+        renderTodos();
+    }
+    
+    function init() {
+        loadData();
+        currentDate = loadCurrentDate();
+        initPicker();
+        bindDiary();
+        renderAll();
+        dom.gotoBtn.onclick = () => { const val = dom.datePicker.value; if(val) goToDate(val); };
+        dom.addBtn.onclick = addTodo;
+        dom.todoText.onkeypress = e => { if(e.key === 'Enter') addTodo(); };
+        dom.historyBtn.onclick = showHistory;
+        dom.archiveBtn.onclick = archiveAndExport;
+        dom.exportBtn.onclick = exportBackup;
+        dom.importBtn.onclick = () => dom.importFile.click();
+        dom.importFile.onchange = e => { if(e.target.files[0]) importBackup(e.target.files[0]); };
+        dom.closeModal.onclick = () => dom.modal.style.display = 'none';
+        window.onbeforeunload = () => saveCurrentDate();
+    }
+    init();
+</script>
+</body>
+</html>
