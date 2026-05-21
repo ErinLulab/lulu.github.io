@@ -26,7 +26,6 @@
             align-items: center;
             min-height: 100vh;
         }
-        /* 大卡片圆角 6px */
         .dashboard {
             max-width: 700px;
             width: 100%;
@@ -42,7 +41,6 @@
         .app-title { font-size: 1.6rem; font-weight: 600; color: #f97316; }
         .app-sub { font-size: 0.7rem; color: #9ca3af; }
 
-        /* DateBar 两行结构 */
         .date-bar {
             background: #fef3c7;
             padding: 12px;
@@ -78,7 +76,6 @@
             font-size: 14px;
             white-space: nowrap;
         }
-        /* 第二行：左对齐，圆角 2px */
         .date-range-hint {
             font-size: 0.55rem;
             color: #92400e;
@@ -134,14 +131,21 @@
         .todo-header { margin-bottom: 10px; }
         .todo-title { font-weight: 600; font-size: 0.95rem; }
 
+        /* ✅ 修复宽度溢出 */
         .todo-add-bar {
             display: flex;
             flex-direction: column;
             gap: 10px;
             margin-bottom: 16px;
+            width: 100%;
+        }
+        .todo-text-input,
+        .todo-due-picker,
+        .todo-add-button {
+            width: 100%;
+            box-sizing: border-box;
         }
         .todo-text-input, .todo-due-picker {
-            width: 100%;
             padding: 10px;
             border-radius: 4px;
             font-size: 14px;
@@ -149,7 +153,6 @@
             background: white;
         }
         .todo-add-button {
-            width: 100%;
             padding: 10px;
             border-radius: 4px;
             font-size: 14px;
@@ -167,7 +170,6 @@
             gap: 12px;
             margin-bottom: 20px;
         }
-        /* TodoItem：手机上也强制两行，永不合并 */
         .todo-item {
             background: #f9fafb;
             border-radius: 4px;
@@ -279,7 +281,6 @@
         <div class="app-sub">✧ 每天的心情、日记、待办，都值得收藏 ✧</div>
     </div>
 
-    <!-- DateBar 两行 -->
     <div class="date-bar">
         <div class="date-row-top">
             <span class="date-label">📅 选择日期：</span>
