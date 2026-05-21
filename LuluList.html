@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>LuluList · 我的电子手账</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background: #f3f4f6;
+            font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        /* Dashboard - 整个白色卡片，圆角12px */
+        .dashboard {
+            max-width: 700px;
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.2);
+            padding: 20px 16px 24px;
+            transition: opacity 0.2s;
+        }
+        .dashboard.fade-out { opacity: 0; }
+
+        /* AppHeader - 标题区域 */
+        .app-header { text-align: center; margin-bottom: 16px; }
+        .app-title { font-size: 1.6rem; font-weight: 600; color: #f97316; }
+        .app-sub { font-size: 0.7rem; color: #9ca3af; }
+
+        /* DateBar - 水平并排布局，圆角10px */
+        .date-bar {
+            background: #fef3c7;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .date-label { font-weight: 500; color: #92400e; font-size: 0.85rem; flex-shrink: 0; }
+        .date-picker {
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: white;
+            flex: 1;
+            min-width: 120px;
+        }
+        .date-go-button {
+            background: #f97316;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        /* DateRangeHint - 圆角6px */
+        .date-range-hint {
+            font-size: 0.55rem;
+            color: #92400e;
+            background: #ffedd5;
+            padding: 6px 10px;
+            border-radius: 6px;
+            text-align: center;
+            white-space: nowrap;
+        }
+        /* DateBadge - 当前日期横幅，圆角12px */
+        .date-badge {
+            text-align: center;
+            margin: 12px 0 16px;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-radius: 12px;
+            font-weight: 600;
+            color: #92400e;
+            font-size: 0.9rem;
+        }
+        /* MoodCard - 心情卡片，圆角10px */
+        .mood-card {
+            background: #fef2f2;
+            border-radius: 10px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .mood-label { font-weight: 600; color: #dc2626; font-size: 0.9rem; }
+        .mood-stars { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+        .star { font-size: 1.6rem; cursor: pointer; color: #d1d5db; padding: 2px; }
+        .star.active { color: #fbbf24; }
+        .star.default-star { color: #9ca3af; border: 1px dashed #d1d5db; border-radius: 6px; padding: 2px; font-size: 1.3rem; }
+        .mood-hint { font-size: 0.65rem; color: #9ca3af; }
+        /* DiaryCard - 日记卡片 */
+        .diary-card { margin-bottom: 20px; }
+        .diary-label { font-weight: 600; margin-bottom: 6px; color: #374151; font-size: 0.9rem; }
+        /* DiaryTextarea - 圆角8px */
+        .diary-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+        }
+        .diary-empty-hint { color: #9ca3af; text-align: center; padding: 10px; background: #f9fafb; border-radius: 8px; margin-top: 8px; font-size: 0.75rem; }
+        /* TodoCard - 待办卡片 */
+        .todo-card { margin-top: 16px; }
+        .todo-header { margin-bottom: 10px; }
+        .todo-title { font-weight: 600; font-size: 0.95rem; }
+        /* TodoAddBar - 新增待办区域 */
+        .todo-add-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .todo-text-input, .todo-due-picker {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            border: 1px solid #d1d5db;
+            background: white;
+        }
+        /* TodoAddButton - 圆角8px */
+        .todo-add-button {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #f97316;
+            border: none;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        /* TodoList & TodoItem */
+        .todo-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        /* TodoItem - 圆角8px */
+        .todo-item {
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .todo-row-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .todo-check { width: 20px; height: 20px; accent-color: #f97316; flex-shrink: 0; }
+        .todo-text {
+            flex: 1;
+            font-size: 0.9rem;
+            word-break: break-word;
+            line-height: 1.4;
+        }
+        .todo-row-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .todo-due-date {
+            font-size: 0.7rem;
+            background: #e5e7eb;
+            padding: 4px 10px;
+            border-radius: 30px;
+            white-space: nowrap;
+        }
+        /* TodoActions - 编辑/删除按钮容器，gap:4px */
+        .todo-actions {
+            display: flex;
+            gap: 4px;
+        }
+        .todo-edit-icon, .todo-delete-icon {
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 30px;
+        }
+        .todo-item.completed .todo-text { text-decoration: line-through; color: #9ca3af; }
+        .edit-input {
+            flex: 1;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #f97316;
+            font-size: 14px;
+        }
+        .empty-todo { text-align: center; color: #9ca3af; padding: 30px 20px; background: #f9fafb; border-radius: 12px; font-size: 0.85rem; }
+        /* Footer 区域 */
+        .footer-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .footer-left, .footer-right { display: flex; gap: 10px; }
+        /* ActionBtn - 圆角8px */
+        .action-btn {
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            min-height: 40px;
+        }
+        /* StatsBar - 统计信息 */
+        .stats-bar {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #6b7280;
+            margin-top: 16px;
+            padding-top: 10px;
+            border-top: 1px solid #e5e7eb;
+        }
+        /* HistoryModal - 弹窗容器圆角10px */
+        .modal-mask { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-container { background: white; border-radius: 10px; width: 90%; max-width: 600px; max-height: 80%; overflow: auto; padding: 20px; }
+        .modal-title { font-size: 1.3rem; font-weight: 600; color: #f97316; text-align: center; margin-bottom: 16px; }
+        .history-group { margin-bottom: 16px; }
+        .history-date { font-weight: 600; margin-bottom: 6px; border-bottom: 1px solid #e5e7eb; font-size: 0.85rem; }
+        .history-item { background: #f9fafb; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; display: flex; gap: 8px; font-size: 0.85rem; }
+        .close-modal-btn { background: #f97316; color: white; border: none; padding: 10px 20px; border-radius: 8px; width: 100%; cursor: pointer; margin-top: 16px; }
+        /* Toast */
+        .date-toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 30px; z-index: 1100; animation: fadeInOut 1.5s; white-space: nowrap; font-size: 0.8rem; }
+        @keyframes fadeInOut { 0% { opacity: 0; transform: translateX(-50%) translateY(20px); } 15% { opacity: 1; transform: translateX(-50%) translateY(0); } 85% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
+        
+        @media (max-width: 500px) {
+            .date-bar { flex-wrap: wrap; }
+            .date-picker { min-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard" id="dashboardContainer">
+    <div class="app-header">
+        <div class="app-title">📒 LuluList-我的电子手账</div>
+        <div class="app-sub">✧ 每天的心情、日记、待办，都值得收藏 ✧</div>
+    </div>
+    <!-- DateBar 水平并排 -->
+    <div class="date-bar">
+        <span class="date-label">📅 选择日期：</span>
+        <input type="date" id="datePicker" class="date-picker">
+        <button id="gotoDateBtn" class="date-go-button">📖 前往</button>
+        <span class="date-range-hint" id="dateHint"></span>
+    </div>
+    <div class="date-badge" id="currentDateBadge"></div>
+    <div class="mood-card">
+        <span class="mood-label">💖 今日心情</span>
+        <div class="mood-stars" id="starContainer"></div>
+    </div>
+    <div class="diary-card">
+        <div class="diary-label">📝 今日日记</div>
+        <textarea class="diary-textarea" id="diaryInput" rows="3" placeholder="写点什么吧..."></textarea>
+        <div class="diary-empty-hint" id="emptyDiaryHint" style="display: none;">✨ 还没有写日记，记录一下今天的心情吧～</div>
+    </div>
+    <div class="todo-card">
+        <div class="todo-header"><span class="todo-title">🎯 待办清单</span></div>
+        <div class="todo-add-bar">
+            <input type="text" id="todoTextInput" class="todo-text-input" placeholder="新任务" autocomplete="off">
+            <input type="date" id="todoDueDateInput" class="todo-due-picker">
+            <button id="addTodoBtn" class="todo-add-button">➕ 添加</button>
+        </div>
+        <ul class="todo-list" id="todoListContainer"></ul>
+    </div>
+    <div class="footer-actions">
+        <div class="footer-left"><button id="historyBtn" class="action-btn">📜 历史完成</button></div>
+        <div class="footer-right">
+            <button id="exportBtn" class="action-btn">📤 导出备份</button>
+            <button id="importBtn" class="action-btn">📥 导入备份</button>
+            <input type="file" id="importFileInput" accept=".json" style="display: none;">
+        </div>
+    </div>
+    <div class="stats-bar" id="statsArea"></div>
+</div>
+<div id="historyModal" style="display: none;" class="modal-mask">
+    <div class="modal-container">
+        <div class="modal-title">📜 历史完成记录</div>
+        <div id="historyContent"></div>
+        <button class="close-modal-btn" id="closeHistoryBtn">关闭</button>
+    </div>
+</div>
+<script>
+    const STORAGE_KEY = 'lululist_v3.0';
+    const MAX_DAYS = 30;
+    let journal = {};
+    let currentDate = getTodayDate();
+    let isTransitioning = false;
+
+    const dom = {
+        dashboard: document.getElementById('dashboardContainer'),
+        datePicker: document.getElementById('datePicker'),
+        gotoBtn: document.getElementById('gotoDateBtn'),
+        dateHint: document.getElementById('dateHint'),
+        badge: document.getElementById('currentDateBadge'),
+        starContainer: document.getElementById('starContainer'),
+        diaryInput: document.getElementById('diaryInput'),
+        emptyHint: document.getElementById('emptyDiaryHint'),
+        todoList: document.getElementById('todoListContainer'),
+        todoText: document.getElementById('todoTextInput'),
+        todoDue: document.getElementById('todoDueDateInput'),
+        addBtn: document.getElementById('addTodoBtn'),
+        stats: document.getElementById('statsArea'),
+        historyBtn: document.getElementById('historyBtn'),
+        exportBtn: document.getElementById('exportBtn'),
+        importBtn: document.getElementById('importBtn'),
+        importFile: document.getElementById('importFileInput'),
+        modal: document.getElementById('historyModal'),
+        historyContent: document.getElementById('historyContent'),
+        closeModal: document.getElementById('closeHistoryBtn')
+    };
+
+    function getTodayDate() {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+    function addDays(dateStr, days) {
+        const [y,m,day] = dateStr.split('-').map(Number);
+        const d = new Date(y, m-1, day);
+        d.setDate(d.getDate() + days);
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+    function getEarliest() { return addDays(getTodayDate(), -MAX_DAYS); }
+    function isDateAllowed(dateStr) { return dateStr >= getEarliest() && dateStr <= getTodayDate(); }
+    function formatDate(dateStr) {
+        const [y,m,d] = dateStr.split('-');
+        return dateStr === getTodayDate() ? `${y}年${m}月${d}日 (今天)` : `${y}年${m}月${d}日`;
+    }
+    function showToast(msg) {
+        const toast = document.createElement('div');
+        toast.className = 'date-toast';
+        toast.innerText = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    }
+
+    function loadData() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) { journal = JSON.parse(stored); return; }
+        const oldKeys = ['lululist_v2.0', 'lululist_v2.1'];
+        for (let key of oldKeys) {
+            const old = localStorage.getItem(key);
+            if (old) {
+                journal = JSON.parse(old);
+                for (let d in journal) {
+                    if (journal[d].todos) {
+                        journal[d].todos = journal[d].todos.map(t => ({ ...t, createdAt: t.createdAt || Date.now(), completedAt: t.completedAt || null }));
+                    }
+                    if (journal[d]._hasUserRated === undefined) journal[d]._hasUserRated = false;
+                }
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(journal));
+                localStorage.removeItem(key);
+                console.log('✅ 已自动迁移旧数据');
+                showToast('已自动迁移旧数据');
+                return;
+            }
+        }
+        const today = getTodayDate();
+        journal = { [today]: { mood: 3, _hasUserRated: false, diary: "今天开始用电子手账啦！", todos: [] } };
+    }
+    function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(journal)); }
+    function ensureData() { if (!journal[currentDate]) journal[currentDate] = { mood: 3, _hasUserRated: false, diary: '', todos: [] }; saveData(); }
+    function getCurrent() { ensureData(); return journal[currentDate]; }
+
+    function inheritTodos(prev, next) {
+        if (!prev || !journal[prev]) return;
+        const prevTodos = journal[prev].todos || [];
+        const nextTodos = journal[next]?.todos || [];
+        const nextIds = new Set(nextTodos.map(t => t.id));
+        const toInherit = prevTodos.filter(t => t.completed === false && !nextIds.has(t.id));
+        if (!toInherit.length) return;
+        if (!journal[next]) journal[next] = { mood: 3, _hasUserRated: false, diary: '', todos: [] };
+        for (let t of toInherit) {
+            journal[next].todos.push({
+                id: t.id, text: t.text, completed: false, dueDate: t.dueDate,
+                createdAt: t.createdAt || Date.now(), completedAt: null
+            });
+        }
+        saveData();
+    }
+
+    function deleteGlobal(id) {
+        for (let d in journal) journal[d].todos = journal[d].todos.filter(t => t.id !== id);
+        saveData();
+        renderAll();
+        showToast('🗑️ 已永久删除');
+    }
+
+    function updateGlobal(id, newText) {
+        const future = Object.keys(journal).filter(d => d >= currentDate).sort();
+        for (let d of future) {
+            const todo = journal[d].todos.find(t => t.id === id);
+            if (todo) todo.text = newText;
+        }
+        saveData();
+        renderAll();
+        showToast('✏️ 已同步修改未来');
+    }
+
+    function exportBackup() {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([JSON.stringify(journal, null, 2)], {type: 'application/json'}));
+        a.download = `lululist_${getTodayDate()}.json`;
+        a.click();
+        showToast('📤 已导出');
+    }
+    function importBackup(file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            try {
+                journal = JSON.parse(e.target.result);
+                saveData();
+                currentDate = getTodayDate();
+                renderAll();
+                showToast('📥 导入成功');
+            } catch(err) { alert('文件格式错误'); }
+        };
+        reader.readAsText(file);
+    }
+
+    function showHistory() {
+        const items = [];
+        for (let d in journal) {
+            const completed = (journal[d].todos || []).filter(t => t.completed);
+            if (completed.length) items.push({ date: d, todos: completed });
+        }
+        if (!items.length) { dom.historyContent.innerHTML = '<div style="text-align:center;padding:40px;">✨ 暂无完成记录</div>'; dom.modal.style.display = 'flex'; return; }
+        let html = '';
+        for (let g of items) {
+            html += `<div class="history-group"><div class="history-date">📅 ${formatDate(g.date)}</div>`;
+            for (let t of g.todos) html += `<div class="history-item"><span>✅</span><span>${escapeHtml(t.text)}</span></div>`;
+            html += `</div>`;
+        }
+        dom.historyContent.innerHTML = html;
+        dom.modal.style.display = 'flex';
+    }
+    function escapeHtml(str) { return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+
+    function renderMood() {
+        const data = getCurrent();
+        if (!data._hasUserRated) {
+            dom.starContainer.innerHTML = '';
+            for (let i=1;i<=5;i++) {
+                const s = document.createElement('span');
+                s.className = 'star default-star';
+                s.textContent = '☆';
+                s.onclick = () => { data.mood = i; data._hasUserRated = true; saveData(); renderMood(); showToast(`心情 ${i} 星`); };
+                dom.starContainer.appendChild(s);
+            }
+            const hint = document.createElement('span');
+            hint.className = 'mood-hint';
+            hint.innerText = '✨ 点击星星评价';
+            dom.starContainer.appendChild(hint);
+            return;
+        }
+        const val = data.mood || 3;
+        dom.starContainer.innerHTML = '';
+        for (let i=1;i<=5;i++) {
+            const s = document.createElement('span');
+            s.className = `star ${i<=val ? 'active' : ''}`;
+            s.textContent = '★';
+            s.onclick = () => { data.mood = i; saveData(); renderMood(); showToast(`心情 ${i} 星`); };
+            dom.starContainer.appendChild(s);
+        }
+    }
+
+    function renderDiary() {
+        const data = getCurrent();
+        dom.diaryInput.value = data.diary || '';
+        dom.emptyHint.style.display = data.diary ? 'none' : 'block';
+    }
+    function bindDiary() { dom.diaryInput.oninput = () => { getCurrent().diary = dom.diaryInput.value; saveData(); dom.emptyHint.style.display = dom.diaryInput.value ? 'none' : 'block'; }; }
+
+    function renderTodos() {
+        const todos = getCurrent().todos || [];
+        const incomplete = todos.filter(t => !t.completed).sort((a,b) => (a.createdAt||0) - (b.createdAt||0));
+        const complete = todos.filter(t => t.completed).sort((a,b) => (a.completedAt||0) - (b.completedAt||0));
+        const sorted = [...incomplete, ...complete];
+        if (!sorted.length) { dom.todoList.innerHTML = '<div class="empty-todo">✨ 空空如也，添加一条任务吧 ✨</div>'; dom.stats.innerText = `✅ 待办完成 0/0`; return; }
+        dom.todoList.innerHTML = '';
+        for (let t of sorted) {
+            const li = document.createElement('li');
+            li.className = `todo-item ${t.completed ? 'completed' : ''}`;
+            const topRow = document.createElement('div');
+            topRow.className = 'todo-row-top';
+            const chk = document.createElement('input');
+            chk.type = 'checkbox';
+            chk.className = 'todo-check';
+            chk.checked = t.completed;
+            chk.onchange = () => { 
+                t.completed = chk.checked; 
+                t.completedAt = chk.checked ? Date.now() : null; 
+                if (!t.createdAt) t.createdAt = Date.now(); 
+                saveData(); 
+                renderTodos(); 
+                showToast(chk.checked ? '✅ 已完成' : '↩️ 已撤销'); 
+            };
+            const textSpan = document.createElement('span');
+            textSpan.className = 'todo-text';
+            textSpan.innerText = t.text;
+            topRow.append(chk, textSpan);
+            const bottomRow = document.createElement('div');
+            bottomRow.className = 'todo-row-bottom';
+            const dueSpan = document.createElement('span');
+            dueSpan.className = 'todo-due-date';
+            dueSpan.innerText = t.dueDate ? `📅 ${t.dueDate}` : '⏳ 无日期';
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'todo-actions';
+            const editBtn = document.createElement('button');
+            editBtn.innerHTML = '✏️';
+            editBtn.className = 'todo-edit-icon';
+            editBtn.onclick = () => enterEdit(li, t);
+            const delBtn = document.createElement('button');
+            delBtn.innerHTML = '🗑️';
+            delBtn.className = 'todo-delete-icon';
+            delBtn.onclick = () => { if(confirm('永久删除？')) deleteGlobal(t.id); };
+            actionsDiv.append(editBtn, delBtn);
+            bottomRow.append(dueSpan, actionsDiv);
+            li.append(topRow, bottomRow);
+            dom.todoList.appendChild(li);
+        }
+        const completedCount = sorted.filter(t => t.completed).length;
+        dom.stats.innerText = `✅ 待办完成 ${completedCount}/${sorted.length} · 💾 自动保存`;
+    }
+
+    function enterEdit(li, todo) {
+        li.innerHTML = '';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = todo.text;
+        input.className = 'edit-input';
+        const save = document.createElement('button');
+        save.textContent = '✔️ 保存';
+        const cancel = document.createElement('button');
+        cancel.textContent = '❌ 取消';
+        save.onclick = () => { const newText = input.value.trim(); if(newText) updateGlobal(todo.id, newText); };
+        cancel.onclick = () => renderTodos();
+        li.append(input, save, cancel);
+    }
+
+    function addTodo() {
+        const text = dom.todoText.value.trim();
+        if (!text) return alert('请输入内容');
+        const newTodo = {
+            id: Date.now() + '_' + Math.random().toString(36).substring(2,6),
+            text, completed: false, dueDate: dom.todoDue.value || null,
+            createdAt: Date.now(), completedAt: null
+        };
+        getCurrent().todos.push(newTodo);
+        saveData();
+        renderTodos();
+        dom.todoText.value = '';
+        dom.todoDue.value = '';
+        showToast('➕ 已添加');
+    }
+
+    async function goToDate(dateStr) {
+        if (!isDateAllowed(dateStr)) return;
+        if (dateStr === currentDate) { showToast(`已是 ${formatDate(dateStr)}`); return; }
+        if (isTransitioning) return;
+        isTransitioning = true;
+        dom.dashboard.classList.add('fade-out');
+        await new Promise(r => setTimeout(r, 150));
+        const prev = currentDate;
+        currentDate = dateStr;
+        inheritTodos(prev, currentDate);
+        saveCurrentDate();
+        renderAll();
+        dom.dashboard.classList.remove('fade-out');
+        dom.datePicker.value = currentDate;
+        showToast(`已切换到 ${formatDate(currentDate)}`);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        isTransitioning = false;
+    }
+
+    function saveCurrentDate() { localStorage.setItem('lululist_current_date', currentDate); }
+    function loadCurrentDate() { const saved = localStorage.getItem('lululist_current_date'); return (saved && isDateAllowed(saved)) ? saved : getTodayDate(); }
+
+    function initPicker() {
+        dom.datePicker.min = getEarliest();
+        dom.datePicker.max = getTodayDate();
+        dom.datePicker.value = currentDate;
+        dom.dateHint.innerText = `📆 近${MAX_DAYS}天`;
+    }
+
+    function renderAll() {
+        ensureData();
+        dom.badge.innerText = `📌 ${formatDate(currentDate)}`;
+        renderMood();
+        renderDiary();
+        renderTodos();
+    }
+
+    function init() {
+        loadData();
+        currentDate = loadCurrentDate();
+        initPicker();
+        bindDiary();
+        renderAll();
+        dom.gotoBtn.onclick = () => { const val = dom.datePicker.value; if(val) goToDate(val); };
+        dom.addBtn.onclick = addTodo;
+        dom.todoText.onkeypress = e => { if(e.key === 'Enter') addTodo(); };
+        dom.historyBtn.onclick = showHistory;
+        dom.exportBtn.onclick = exportBackup;
+        dom.importBtn.onclick = () => dom.importFile.click();
+        dom.importFile.onchange = e => { if(e.target.files[0]) importBackup(e.target.files[0]); };
+        dom.closeModal.onclick = () => dom.modal.style.display = 'none';
+        window.onbeforeunload = () => saveCurrentDate();
+    }
+    init();
+</script>
+</body>
+</html>
