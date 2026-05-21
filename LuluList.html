@@ -2,52 +2,21 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>LuluList · 强制两行版</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuluList 测试版</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #f3f4f6; font-family: system-ui; padding: 16px; }
-        .dashboard { max-width: 700px; margin: 0 auto; background: white; border-radius: 12px; padding: 20px; }
-
-        /* 日期区 */
-        .date-bar { background: #fef3c7; padding: 12px; border-radius: 8px; margin-bottom: 12px; }
-        .date-line1 { display: block; margin-bottom: 8px; }
-        .date-picker { padding: 8px; border-radius: 6px; border: 1px solid #ccc; width: auto; }
-        .date-go-button { background: #f97316; color: white; border: none; padding: 8px 16px; border-radius: 6px; }
-        .date-range-hint { background: #ffedd5; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; color: #92400e; display: inline-block; }
-
-        /* 待办：强制两行 */
-        .todo-item { background: #f9fafb; padding: 12px; border-radius: 8px; margin-top: 16px; border: 1px solid #eee; }
-        .todo-line1 { margin-bottom: 8px; display: block; }
-        .todo-line2 { display: flex; justify-content: space-between; align-items: center; }
-        .todo-actions { display: flex; gap: 6px; }
+        body { background: black; padding: 20px; }
+        .test { color: lime; font-size: 24px; text-align: center; margin-top: 40px; }
+        .old { display: none; }
     </style>
 </head>
 <body>
-<div class="dashboard">
-    <!-- ✅ 日期：强制换行 -->
-    <div class="date-bar">
-        <div class="date-line1">
-            📅 选择日期：
-            <input type="date" class="date-picker" value="2026-05-21">
-            <button class="date-go-button">前往</button>
-        </div>
-        <div class="date-range-hint">📆 近30天</div>
-    </div>
-
-    <!-- ✅ 待办：强制两行 -->
-    <div class="todo-item">
-        <div class="todo-line1">
-            <input type="checkbox"> 买簇绒枪
-        </div>
-        <div class="todo-line2">
-            <span>📅 2026-05-23</span>
-            <div class="todo-actions">
-                <button>✏️</button>
-                <button>🗑️</button>
-            </div>
-        </div>
-    </div>
+<div class="test">
+    ✅ 新代码已生效（2026-05-21 最终测试版）<br>
+    【近30天应该单独一行】
+</div>
+<div class="old">
+    这是旧缓存
 </div>
 </body>
 </html>
