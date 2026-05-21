@@ -798,4 +798,35 @@
         dom.datePicker.min = getEarliest();
         dom.datePicker.max = getTodayDate();
         dom.datePicker.value = currentDate;
-        dom.dateHint.innerText = `
+        dom.dateHint.innerText = `📆 近${MAX_DAYS}天`;
+    }
+
+    function renderAll() {
+        ensureData();
+        dom.badge.innerText = `📌 ${formatDate(currentDate)}`;
+        renderMood();
+        renderDiary();
+        renderTodos();
+    }
+
+    function init() {
+        loadData();
+        currentDate = loadCurrentDate();
+        initPicker();
+        bindDiary();
+        renderAll();
+        dom.gotoBtn.onclick = () => { const val = dom.datePicker.value; if(val) goToDate(val); };
+        dom.addBtn.onclick = addTodo;
+        dom.todoText.onkeypress = e => { if(e.key === 'Enter') addTodo(); };
+        dom.historyBtn.onclick = showHistory;
+        dom.exportBtn.onclick = exportBackup;
+        dom.importBtn.onclick = () => dom.importFile.click();
+        dom.importFile.onchange = e => { if(e.target.files[0]) importBackup(e.target.files[0]); };
+        dom.closeModal.onclick = () => dom.modal.style.display = 'none';
+        dom.statsBtn.onclick = toggleChart;
+        window.onbeforeunload = () => saveCurrentDate();
+    }
+    init();
+</script>
+</body>
+</html>
