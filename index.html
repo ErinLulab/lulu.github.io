@@ -238,6 +238,24 @@
         
         .empty-todo { text-align: center; color: #9ca3af; padding: 30px 20px; background: #f9fafb; border-radius: 12px; font-size: 0.85rem; }
 
+        /* 图表容器 */
+        .chart-wrapper {
+            margin: 16px 0 20px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+        }
+        .chart-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        canvas {
+            max-height: 250px;
+            width: 100%;
+        }
+
         .footer-actions {
             display: flex;
             justify-content: space-between;
@@ -255,11 +273,6 @@
             cursor: pointer;
             min-height: 40px;
         }
-        .action-btn.active {
-            background: #f97316;
-            color: white;
-            border-color: #f97316;
-        }
 
         .stats-bar {
             text-align: center;
@@ -268,27 +281,6 @@
             margin-top: 16px;
             padding-top: 10px;
             border-top: 1px solid #e5e7eb;
-        }
-
-        .chart-container {
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid #e5e7eb;
-            display: none;
-        }
-        .chart-container.show {
-            display: block;
-        }
-        .chart-title {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 12px;
-            text-align: center;
-        }
-        canvas {
-            max-height: 250px;
-            width: 100%;
         }
 
         .modal-mask { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
@@ -347,6 +339,12 @@
         <ul class="todo-list" id="todoListContainer"></ul>
     </div>
 
+    <!-- 常态图表 -->
+    <div class="chart-wrapper">
+        <div class="chart-title">📈 近7天心情趋势</div>
+        <canvas id="moodChart"></canvas>
+    </div>
+
     <div class="footer-actions">
         <div class="footer-left">
             <button id="historyBtn" class="action-btn">📜 历史完成</button>
@@ -354,15 +352,9 @@
         <div class="footer-right">
             <button id="exportBtn" class="action-btn">📤 导出备份</button>
             <button id="importBtn" class="action-btn">📥 导入备份</button>
-            <button id="statsBtn" class="action-btn">📊 统计</button>
         </div>
     </div>
     <div class="stats-bar" id="statsArea"></div>
-
-    <div id="chartContainer" class="chart-container">
-        <div class="chart-title">📈 近7天心情趋势</div>
-        <canvas id="moodChart"></canvas>
-    </div>
 </div>
 
 <div id="historyModal" style="display: none;" class="modal-mask">
@@ -401,9 +393,7 @@
         importFile: document.getElementById('importFileInput'),
         modal: document.getElementById('historyModal'),
         historyContent: document.getElementById('historyContent'),
-        closeModal: document.getElementById('closeHistoryBtn'),
-        statsBtn: document.getElementById('statsBtn'),
-        chartContainer: document.getElementById('chartContainer')
+        closeModal: document.getElementById('closeHistoryBtn')
     };
 
     function getTodayDate() {
@@ -430,6 +420,7 @@
         setTimeout(() => toast.remove(), 2000);
     }
 
+    // ========== 图表逻辑 ==========
     function getLast7Days() {
         const days = [];
         for (let i = 6; i >= 0; i--) {
@@ -444,7 +435,7 @@
         const moodValues = [];
 
         days.forEach(date => {
-            labels.push(date.slice(5));
+            labels.push(date.slice(5)); // MM-DD
             const mood = journal[date]?.mood;
             moodValues.push(mood !== undefined && journal[date]?._hasUserRated ? mood : null);
         });
@@ -491,26 +482,13 @@
         });
     }
 
-    function toggleChart() {
-        const isVisible = dom.chartContainer.classList.contains('show');
-        if (isVisible) {
-            dom.chartContainer.classList.remove('show');
-            dom.statsBtn.classList.remove('active');
-        } else {
-            renderChart();
-            dom.chartContainer.classList.add('show');
-            dom.statsBtn.classList.add('active');
-        }
-    }
-
-    // 数据变化时刷新图表（如果处于展开状态）
-    function refreshChartIfVisible() {
-        if (dom.chartContainer.classList.contains('show')) {
+    function refreshChart() {
+        if (moodChart) {
             renderChart();
         }
     }
 
-    // ========== 原有功能 ==========
+    // ========== 数据操作 ==========
     function loadData() {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) { journal = JSON.parse(stored); return; }
@@ -554,7 +532,7 @@
             });
         }
         saveData();
-        refreshChartIfVisible();
+        refreshChart();
     }
 
     function deleteGlobal(id) {
@@ -562,7 +540,7 @@
         saveData();
         renderAll();
         showToast('🗑️ 已永久删除');
-        refreshChartIfVisible();
+        refreshChart();
     }
 
     function updateGlobal(id, newText, newDueDate) {
@@ -577,7 +555,7 @@
         saveData();
         renderAll();
         showToast('✏️ 已同步修改未来');
-        refreshChartIfVisible();
+        refreshChart();
     }
 
     function exportBackup() {
@@ -596,7 +574,7 @@
                 currentDate = getTodayDate();
                 renderAll();
                 showToast('📥 导入成功');
-                refreshChartIfVisible();
+                refreshChart();
             } catch(err) { alert('文件格式错误'); }
         };
         reader.readAsText(file);
@@ -628,7 +606,7 @@
                 const s = document.createElement('span');
                 s.className = 'star default-star';
                 s.textContent = '☆';
-                s.onclick = () => { data.mood = i; data._hasUserRated = true; saveData(); renderMood(); showToast(`心情 ${i} 星`); refreshChartIfVisible(); };
+                s.onclick = () => { data.mood = i; data._hasUserRated = true; saveData(); renderMood(); showToast(`心情 ${i} 星`); refreshChart(); };
                 dom.starContainer.appendChild(s);
             }
             const hint = document.createElement('span');
@@ -643,7 +621,7 @@
             const s = document.createElement('span');
             s.className = `star ${i<=val ? 'active' : ''}`;
             s.textContent = '★';
-            s.onclick = () => { data.mood = i; saveData(); renderMood(); showToast(`心情 ${i} 星`); refreshChartIfVisible(); };
+            s.onclick = () => { data.mood = i; saveData(); renderMood(); showToast(`心情 ${i} 星`); refreshChart(); };
             dom.starContainer.appendChild(s);
         }
     }
@@ -703,7 +681,7 @@
                 saveData(); 
                 renderTodos(); 
                 showToast(chk.checked ? '✅ 已完成' : '↩️ 已撤销'); 
-                refreshChartIfVisible();
+                refreshChart();
             };
             const textSpan = document.createElement('span');
             textSpan.className = 'todo-text';
@@ -766,7 +744,7 @@
         showToast(`已切换到 ${formatDate(currentDate)}`);
         window.scrollTo({ top: 0, behavior: 'smooth' });
         isTransitioning = false;
-        refreshChartIfVisible();
+        refreshChart();
     }
 
     function saveCurrentDate() { localStorage.setItem('lululist_current_date', currentDate); }
@@ -793,6 +771,7 @@
         initPicker();
         bindDiary();
         renderAll();
+        renderChart();  // 初始化图表
         dom.gotoBtn.onclick = () => { const val = dom.datePicker.value; if(val) goToDate(val); };
         dom.addBtn.onclick = addTodo;
         dom.todoText.onkeypress = e => { if(e.key === 'Enter') addTodo(); };
@@ -801,7 +780,6 @@
         dom.importBtn.onclick = () => dom.importFile.click();
         dom.importFile.onchange = e => { if(e.target.files[0]) importBackup(e.target.files[0]); };
         dom.closeModal.onclick = () => dom.modal.style.display = 'none';
-        dom.statsBtn.onclick = toggleChart;
         window.onbeforeunload = () => saveCurrentDate();
     }
     init();
