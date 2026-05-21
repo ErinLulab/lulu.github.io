@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>LuluList · 我的电子手账</title>
     <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="LuluList">
-    <link rel="apple-touch-icon" href="icon-192.png">
     <style>
         * {
             margin: 0;
@@ -40,24 +41,19 @@
         .app-title { font-size: 1.6rem; font-weight: 600; color: #f97316; }
         .app-sub { font-size: 0.7rem; color: #9ca3af; }
 
-        /* DateBar - 第一行：标签 + 选择器 + 按钮，水平强制一行 */
+        /* DateBar - 水平并排 + 小屏自动换行 */
         .date-bar {
             background: #fef3c7;
             padding: 12px;
             border-radius: 10px;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            flex-wrap: nowrap;
+            flex-wrap: wrap;
         }
-        .date-label { 
-            font-weight: 500; 
-            color: #92400e; 
-            font-size: 0.85rem; 
-            flex-shrink: 0; 
-        }
+        .date-label { font-weight: 500; color: #92400e; font-size: 0.85rem; flex-shrink: 0; }
         .date-picker {
             padding: 10px;
             font-size: 14px;
@@ -65,7 +61,7 @@
             border-radius: 8px;
             background: white;
             flex: 1;
-            min-width: 0;
+            min-width: 120px;
         }
         .date-go-button {
             background: #f97316;
@@ -77,10 +73,7 @@
             cursor: pointer;
             font-size: 14px;
             white-space: nowrap;
-            flex-shrink: 0;
         }
-
-        /* DateRangeHint - 单独一行 */
         .date-range-hint {
             font-size: 0.55rem;
             color: #92400e;
@@ -88,7 +81,6 @@
             padding: 6px 10px;
             border-radius: 6px;
             text-align: center;
-            margin-bottom: 12px;
         }
 
         .date-badge {
@@ -266,7 +258,7 @@
         @keyframes fadeInOut { 0% { opacity: 0; transform: translateX(-50%) translateY(20px); } 15% { opacity: 1; transform: translateX(-50%) translateY(0); } 85% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
         
         @media (max-width: 480px) {
-            .date-picker { min-width: 0; }
+            .date-picker { min-width: 100px; }
             .date-go-button { padding: 10px 12px; }
         }
     </style>
@@ -278,15 +270,12 @@
         <div class="app-sub">✧ 每天的心情、日记、待办，都值得收藏 ✧</div>
     </div>
 
-    <!-- DateBar - 第一行：标签 + 选择器 + 按钮 -->
     <div class="date-bar">
         <span class="date-label">📅 选择日期：</span>
         <input type="date" id="datePicker" class="date-picker">
         <button id="gotoDateBtn" class="date-go-button">📖 前往</button>
+        <span class="date-range-hint" id="dateHint"></span>
     </div>
-
-    <!-- DateRangeHint - 单独一行 -->
-    <div class="date-range-hint" id="dateHint"></div>
 
     <div class="date-badge" id="currentDateBadge"></div>
 
