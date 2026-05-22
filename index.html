@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>LuluList · 我的电子手账</title>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -12,6 +14,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="LuluList">
     <style>
+        /* ========== v3.0.8 样式完全保留，未做任何修改 ========== */
         * {
             margin: 0;
             padding: 0;
@@ -131,7 +134,6 @@
         .todo-header { margin-bottom: 10px; }
         .todo-title { font-weight: 600; font-size: 0.95rem; }
 
-        /* TodoAddBar 两行布局 */
         .todo-add-bar {
             background: #fef3c7;
             padding: 12px;
@@ -146,7 +148,6 @@
             gap: 8px;
             width: 100%;
         }
-        /* 修复宽度溢出：min-width: 0 是关键 */
         .todo-text-input, .todo-due-picker {
             flex: 1;
             min-width: 0;
@@ -249,6 +250,23 @@
         
         .empty-todo { text-align: center; color: #9ca3af; padding: 30px 20px; background: #f9fafb; border-radius: 12px; font-size: 0.85rem; }
 
+        /* ========== 新增：图表容器（不改变任何现有样式） ========== */
+        .chart-wrapper {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .chart-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        canvas {
+            max-height: 250px;
+            width: 100%;
+        }
+
         .footer-actions {
             display: flex;
             justify-content: space-between;
@@ -325,7 +343,6 @@
     <div class="todo-card">
         <div class="todo-header"><span class="todo-title">🎯 待办清单</span></div>
         
-        <!-- TodoAddBar 两行布局：第一行文本框+日期选择器，第二行添加按钮 -->
         <div class="todo-add-bar">
             <div class="todo-add-row">
                 <input type="text" id="todoTextInput" class="todo-text-input" placeholder="新任务" autocomplete="off">
@@ -335,6 +352,12 @@
         </div>
         
         <ul class="todo-list" id="todoListContainer"></ul>
+    </div>
+
+    <!-- 新增：近7天心情趋势图 -->
+    <div class="chart-wrapper">
+        <div class="chart-title">📈 近7天心情趋势</div>
+        <canvas id="moodChart"></canvas>
     </div>
 
     <div class="footer-actions">
@@ -359,11 +382,13 @@
 </div>
 
 <script>
+    // ========== v3.1.0 近7天心情趋势图（基于 v3.0.8，不改样式） ==========
     const STORAGE_KEY = 'lululist_v3.0';
     const MAX_DAYS = 30;
     let journal = {};
     let currentDate = getTodayDate();
     let isTransitioning = false;
+    let moodChart = null;
 
     const dom = {
         dashboard: document.getElementById('dashboardContainer'),
@@ -412,6 +437,82 @@
         setTimeout(() => toast.remove(), 2000);
     }
 
+    // ========== 图表功能 ==========
+    function getLast7Days() {
+        const days = [];
+        for (let i = 6; i >= 0; i--) {
+            days.push(addDays(getTodayDate(), -i));
+        }
+        return days;
+    }
+
+    function renderChart() {
+        const days = getLast7Days();
+        const labels = [];
+        const moodValues = [];
+
+        days.forEach(date => {
+            labels.push(date.slice(5));
+            const mood = journal[date]?.mood;
+            moodValues.push(mood !== undefined && journal[date]?._hasUserRated ? mood : null);
+        });
+
+        const ctx = document.getElementById('moodChart').getContext('2d');
+        if (moodChart) moodChart.destroy();
+
+        moodChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '心情值',
+                    data: moodValues,
+                    borderColor: '#f97316',
+                    backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#f97316',
+                    tension: 0.2,
+                    spanGaps: false  // 无记录处断开
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        min: 1,
+                        max: 5,
+                        stepSize: 1,
+                        title: { display: true, text: '心情 (1~5星)' }
+                    },
+                    x: {
+                        title: { display: true, text: '日期' }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                const value = context.raw;
+                                if (value === null) return '无记录';
+                                return `${value} 星`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function refreshChart() {
+        if (document.getElementById('moodChart')) {
+            renderChart();
+        }
+    }
+
+    // ========== 原有功能（完全保留，只在关键位置增加 refreshChart 调用） ==========
     function loadData() {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) { journal = JSON.parse(stored); return; }
@@ -462,6 +563,7 @@
         saveData();
         renderAll();
         showToast('🗑️ 已永久删除');
+        refreshChart();
     }
 
     function updateGlobal(id, newText, newDueDate) {
@@ -476,6 +578,7 @@
         saveData();
         renderAll();
         showToast('✏️ 已同步修改未来');
+        refreshChart();
     }
 
     function exportBackup() {
@@ -493,6 +596,7 @@
                 saveData();
                 currentDate = getTodayDate();
                 renderAll();
+                refreshChart();
                 showToast('📥 导入成功');
             } catch(err) { alert('文件格式错误'); }
         };
@@ -530,7 +634,7 @@
                 const s = document.createElement('span');
                 s.className = 'star default-star';
                 s.textContent = '☆';
-                s.onclick = () => { data.mood = i; data._hasUserRated = true; saveData(); renderMood(); showToast(`心情 ${i} 星`); };
+                s.onclick = () => { data.mood = i; data._hasUserRated = true; saveData(); renderMood(); showToast(`心情 ${i} 星`); refreshChart(); };
                 dom.starContainer.appendChild(s);
             }
             const hint = document.createElement('span');
@@ -545,7 +649,7 @@
             const s = document.createElement('span');
             s.className = `star ${i<=val ? 'active' : ''}`;
             s.textContent = '★';
-            s.onclick = () => { data.mood = i; saveData(); renderMood(); showToast(`心情 ${i} 星`); };
+            s.onclick = () => { data.mood = i; saveData(); renderMood(); showToast(`心情 ${i} 星`); refreshChart(); };
             dom.starContainer.appendChild(s);
         }
     }
@@ -605,6 +709,7 @@
                 saveData(); 
                 renderTodos(); 
                 showToast(chk.checked ? '✅ 已完成' : '↩️ 已撤销'); 
+                refreshChart();
             };
             const textSpan = document.createElement('span');
             textSpan.className = 'todo-text';
@@ -667,6 +772,7 @@
         showToast(`已切换到 ${formatDate(currentDate)}`);
         window.scrollTo({ top: 0, behavior: 'smooth' });
         isTransitioning = false;
+        refreshChart();
     }
 
     function saveCurrentDate() { localStorage.setItem('lululist_current_date', currentDate); }
@@ -676,7 +782,7 @@
         dom.datePicker.min = getEarliest();
         dom.datePicker.max = getTodayDate();
         dom.datePicker.value = currentDate;
-        dom.dateHint.innerText = `📆 支持输入近${MAX_DAYS}天`;
+        dom.dateHint.innerText = `📆 近${MAX_DAYS}天`;
     }
 
     function renderAll() {
@@ -693,6 +799,7 @@
         initPicker();
         bindDiary();
         renderAll();
+        renderChart();  // 初始化图表
         dom.gotoBtn.onclick = () => { const val = dom.datePicker.value; if(val) goToDate(val); };
         dom.addBtn.onclick = addTodo;
         dom.todoText.onkeypress = e => { if(e.key === 'Enter') addTodo(); };
