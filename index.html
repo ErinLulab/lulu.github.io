@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>LuluList · 我的电子手账</title>
-    <!-- PWA 强制声明 -->
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -132,16 +131,33 @@
         .todo-header { margin-bottom: 10px; }
         .todo-title { font-weight: 600; font-size: 0.95rem; }
 
+        /* ========== TodoAddBar 两行布局（仿 DateBar） ========== */
         .todo-add-bar {
+            background: #fef3c7;
+            padding: 12px;
+            border-radius: 8px;
             display: flex;
             flex-direction: column;
             gap: 10px;
             margin-bottom: 16px;
         }
-        .todo-text-input, .todo-due-picker {
+        .todo-add-row {
+            display: flex;
+            gap: 8px;
             width: 100%;
+        }
+        .todo-text-input {
+            flex: 1;
             padding: 10px;
-            border-radius: 8px;
+            border-radius: 6px;
+            font-size: 14px;
+            border: 1px solid #d1d5db;
+            background: white;
+        }
+        .todo-due-picker {
+            flex: 1;
+            padding: 10px;
+            border-radius: 6px;
             font-size: 14px;
             border: 1px solid #d1d5db;
             background: white;
@@ -149,7 +165,7 @@
         .todo-add-button {
             width: 100%;
             padding: 10px;
-            border-radius: 8px;
+            border-radius: 6px;
             font-size: 14px;
             background: #f97316;
             border: none;
@@ -202,7 +218,6 @@
         }
         .todo-item.completed .todo-text { text-decoration: line-through; color: #9ca3af; }
         
-        /* 编辑模式样式（支持文字 + 日期） */
         .edit-mode {
             display: flex;
             flex-direction: column;
@@ -314,16 +329,23 @@
 
     <div class="todo-card">
         <div class="todo-header"><span class="todo-title">🎯 待办清单</span></div>
+        
+        <!-- TodoAddBar 两行布局 -->
         <div class="todo-add-bar">
-            <input type="text" id="todoTextInput" class="todo-text-input" placeholder="新任务" autocomplete="off">
-            <input type="date" id="todoDueDateInput" class="todo-due-picker">
+            <div class="todo-add-row">
+                <input type="text" id="todoTextInput" class="todo-text-input" placeholder="新任务" autocomplete="off">
+                <input type="date" id="todoDueDateInput" class="todo-due-picker">
+            </div>
             <button id="addTodoBtn" class="todo-add-button">➕ 添加</button>
         </div>
+        
         <ul class="todo-list" id="todoListContainer"></ul>
     </div>
 
     <div class="footer-actions">
-        <div class="footer-left"><button id="historyBtn" class="action-btn">📜 历史完成</button></div>
+        <div class="footer-left">
+            <button id="historyBtn" class="action-btn">📜 历史完成</button>
+        </div>
         <div class="footer-right">
             <button id="exportBtn" class="action-btn">📤 导出备份</button>
             <button id="importBtn" class="action-btn">📥 导入备份</button>
@@ -447,7 +469,7 @@
         showToast('🗑️ 已永久删除');
     }
 
-    function updateGlobal(id, newText, newDueDate, currentDateOnly = false) {
+    function updateGlobal(id, newText, newDueDate) {
         const future = Object.keys(journal).filter(d => d >= currentDate).sort();
         for (let d of future) {
             const todo = journal[d].todos.find(t => t.id === id);
@@ -498,6 +520,11 @@
         dom.historyContent.innerHTML = html;
         dom.modal.style.display = 'flex';
     }
+
+    function closeHistoryModal() {
+        dom.modal.style.display = 'none';
+    }
+
     function escapeHtml(str) { return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
 
     function renderMood() {
@@ -675,10 +702,11 @@
         dom.addBtn.onclick = addTodo;
         dom.todoText.onkeypress = e => { if(e.key === 'Enter') addTodo(); };
         dom.historyBtn.onclick = showHistory;
+        dom.closeModal.onclick = closeHistoryModal;
+        dom.modal.onclick = (e) => { if (e.target === dom.modal) closeHistoryModal(); };
         dom.exportBtn.onclick = exportBackup;
         dom.importBtn.onclick = () => dom.importFile.click();
-        dom.importFile.onchange = e => { if(e.target.files[0]) importBackup(e.target.files[0]); };
-        dom.closeModal.onclick = () => dom.modal.style.display = 'none';
+        dom.importFile.onchange = e => { if(e.target.files[0]) importBackup(e.target.files[0]); e.target.value = ''; };
         window.onbeforeunload = () => saveCurrentDate();
     }
     init();
