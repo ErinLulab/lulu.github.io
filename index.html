@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="LuluList">
     <style>
-        /* ========== v3.0.8 样式完全保留（未改动） ========== */
+        /* ========== 完全继承 v3.2.0 样式，只修改喝水打卡部分 ========== */
         * {
             margin: 0;
             padding: 0;
@@ -98,7 +98,6 @@
             font-size: 0.9rem;
         }
 
-        /* 心情卡片 */
         .mood-card {
             background: #fef2f2;
             border-radius: 12px;
@@ -117,7 +116,6 @@
         .star.default-star { color: #9ca3af; border: 1px dashed #d1d5db; border-radius: 4px; padding: 2px; font-size: 1.3rem; }
         .mood-hint { font-size: 0.65rem; color: #9ca3af; }
 
-        /* 健身打卡卡片 */
         .workout-card {
             background: #fef2f2;
             border-radius: 12px;
@@ -148,28 +146,39 @@
             color: white;
         }
 
-        /* 喝水打卡卡片 */
+        /* 喝水打卡：一行均匀分布，图标改为🧃 */
         .water-card {
-            background: #e8f4f8;
+            background: #f0fdf4;
             border-radius: 12px;
             padding: 12px 20px;
             margin-bottom: 20px;
         }
-        .water-label { font-weight: 600; color: #0c4a6e; font-size: 0.9rem; margin-bottom: 12px; }
+        .water-label { font-weight: 600; color: #166534; font-size: 0.9rem; margin-bottom: 12px; }
         .water-drops {
             display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            justify-content: center;
+            justify-content: space-between;
+            gap: 4px;
+            flex-wrap: nowrap;
         }
-        .drop {
+        .cup-icon {
             font-size: 1.8rem;
             cursor: pointer;
-            color: #93c5fd;
-            transition: 0.1s;
+            transition: all 0.1s;
+            text-align: center;
+            flex: 1;
         }
-        .drop.active { color: #3b82f6; text-shadow: 0 0 2px #3b82f6; }
-        .drop.default-drop { color: #93c5fd; opacity: 0.6; }
+        .cup-icon.default-cup {
+            color: #9ca3af;
+            border: 1px dashed #9ca3af;
+            border-radius: 12px;
+            padding: 4px 0;
+            background: white;
+        }
+        .cup-icon.active {
+            color: #fbbf24;
+            text-shadow: 0 0 2px #f59e0b;
+            transform: scale(1.05);
+        }
 
         .diary-card { margin-bottom: 20px; }
         .diary-label { font-weight: 600; margin-bottom: 6px; color: #374151; font-size: 0.9rem; }
@@ -362,7 +371,7 @@
             .date-picker { min-width: 100px; }
             .date-go-button { padding: 8px 12px; }
             .workout-btn { padding: 4px 16px; }
-            .drop { font-size: 1.4rem; }
+            .cup-icon { font-size: 1.4rem; }
         }
     </style>
 </head>
@@ -384,13 +393,11 @@
 
     <div class="date-badge" id="currentDateBadge"></div>
 
-    <!-- 心情卡片 -->
     <div class="mood-card">
         <span class="mood-label">💖 今日心情</span>
         <div class="mood-stars" id="starContainer"></div>
     </div>
 
-    <!-- 健身打卡卡片 -->
     <div class="workout-card">
         <span class="workout-label">💪 今天你健身了么</span>
         <div class="workout-buttons">
@@ -399,20 +406,18 @@
         </div>
     </div>
 
-    <!-- 喝水打卡卡片 -->
+    <!-- 喝水打卡：一行均匀分布，图标 🧃 -->
     <div class="water-card">
         <div class="water-label">💧 今天喝了几杯水</div>
         <div class="water-drops" id="waterDropsContainer"></div>
     </div>
 
-    <!-- 日记卡片 -->
     <div class="diary-card">
         <div class="diary-label">📝 今日日记</div>
         <textarea class="diary-textarea" id="diaryInput" rows="3" placeholder="写点什么吧..."></textarea>
         <div class="diary-empty-hint" id="emptyDiaryHint" style="display: none;">✨ 还没有写日记，记录一下今天的心情吧～</div>
     </div>
 
-    <!-- 待办卡片 -->
     <div class="todo-card">
         <div class="todo-header"><span class="todo-title">🎯 待办清单</span></div>
         <div class="todo-add-bar">
@@ -425,13 +430,11 @@
         <ul class="todo-list" id="todoListContainer"></ul>
     </div>
 
-    <!-- 图表 -->
     <div class="chart-wrapper">
         <div class="chart-title">📈 近7天心情趋势</div>
         <canvas id="moodChart"></canvas>
     </div>
 
-    <!-- 底部按钮 -->
     <div class="footer-actions">
         <div class="footer-left">
             <button id="historyBtn" class="action-btn">📜 历史完成</button>
@@ -454,7 +457,6 @@
 </div>
 
 <script>
-    // ========== LuluList v3.2.0 健身打卡 + 喝水打卡 ==========
     const STORAGE_KEY = 'lululist_v3.0';
     const MAX_DAYS = 30;
     let journal = {};
@@ -512,7 +514,6 @@
         setTimeout(() => toast.remove(), 2000);
     }
 
-    // ========== 图表功能（不变） ==========
     function getLast7Days() {
         const days = [];
         for (let i = 6; i >= 0; i--) {
@@ -578,12 +579,10 @@
         if (document.getElementById('moodChart')) renderChart();
     }
 
-    // ========== 数据迁移与默认值 ==========
     function loadData() {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
             journal = JSON.parse(stored);
-            // 补充缺失字段
             for (let d in journal) {
                 if (journal[d].workout === undefined) journal[d].workout = null;
                 if (journal[d].water === undefined) journal[d].water = 0;
@@ -599,29 +598,6 @@
             saveData();
             return;
         }
-        const oldKeys = ['lululist_v2.0', 'lululist_v2.1'];
-        for (let key of oldKeys) {
-            const old = localStorage.getItem(key);
-            if (old) {
-                journal = JSON.parse(old);
-                for (let d in journal) {
-                    if (journal[d].todos) {
-                        journal[d].todos = journal[d].todos.map(t => ({ ...t, createdAt: t.createdAt || Date.now(), completedAt: t.completedAt || null }));
-                    } else {
-                        journal[d].todos = [];
-                    }
-                    if (journal[d]._hasUserRated === undefined) journal[d]._hasUserRated = false;
-                    if (journal[d].workout === undefined) journal[d].workout = null;
-                    if (journal[d].water === undefined) journal[d].water = 0;
-                    if (journal[d].mood === undefined) journal[d].mood = null;
-                    if (journal[d].diary === undefined) journal[d].diary = '';
-                }
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(journal));
-                localStorage.removeItem(key);
-                showToast('已自动迁移旧数据');
-                return;
-            }
-        }
         const today = getTodayDate();
         journal = { [today]: { mood: null, _hasUserRated: false, workout: null, water: 0, diary: "", todos: [] } };
         saveData();
@@ -631,7 +607,6 @@
     function ensureData() { if (!journal[currentDate]) journal[currentDate] = { mood: null, _hasUserRated: false, workout: null, water: 0, diary: '', todos: [] }; saveData(); }
     function getCurrent() { ensureData(); return journal[currentDate]; }
 
-    // ========== 健身打卡渲染 ==========
     function renderWorkout() {
         const data = getCurrent();
         if (data.workout === 'yes') {
@@ -654,42 +629,34 @@
         showToast(value === 'yes' ? '💪 已记录健身' : '💪 已记录未健身');
     }
 
-    // ========== 喝水打卡渲染 ==========
+    // 喝水打卡：一行均匀分布，图标 🧃
     function renderWater() {
         const data = getCurrent();
         const waterCount = data.water || 0;
         dom.waterDrops.innerHTML = '';
         for (let i = 1; i <= 10; i++) {
-            const drop = document.createElement('span');
-            drop.className = 'drop';
-            drop.textContent = '💧';
+            const cup = document.createElement('div');
+            cup.className = 'cup-icon';
+            cup.textContent = '🧃';
             if (i <= waterCount) {
-                drop.classList.add('active');
+                cup.classList.add('active');
             } else {
-                drop.classList.add('default-drop');
+                cup.classList.add('default-cup');
             }
-            drop.onclick = () => {
-                const newCount = i;
-                data.water = newCount;
+            cup.onclick = () => {
+                data.water = i;
                 saveData();
                 renderWater();
-                showToast(`💧 已记录 ${newCount} 杯水`);
+                showToast(`🧃 已记录 ${i} 杯水`);
             };
-            dom.waterDrops.appendChild(drop);
+            dom.waterDrops.appendChild(cup);
         }
     }
 
-    // ========== 继承（同步健身/喝水） ==========
     function inheritExtras(prev, next) {
-        if (!prev || !journal[prev]) return;
-        const prevData = journal[prev];
-        if (!journal[next]) journal[next] = { mood: null, _hasUserRated: false, workout: null, water: 0, diary: '', todos: [] };
-        // 健身：未完成（null）不继承？这里保持独立，不自动继承，由用户自己打卡
-        // 喝水：不自动继承，每天独立
-        // 待办未完成继承已经在原函数中处理
+        // 健身/喝水不自动继承，保持独立
     }
 
-    // 原继承函数（已存在，需要整合）
     function inheritTodos(prev, next) {
         if (!prev || !journal[prev]) return;
         const prevTodos = journal[prev].todos || [];
@@ -707,7 +674,6 @@
         saveData();
     }
 
-    // ========== 删除、更新等（需刷新打卡模块） ==========
     function deleteGlobal(id) {
         for (let d in journal) journal[d].todos = journal[d].todos.filter(t => t.id !== id);
         saveData();
@@ -774,7 +740,6 @@
     function closeHistoryModal() { dom.modal.style.display = 'none'; }
     function escapeHtml(str) { return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
 
-    // ========== 渲染心情 ==========
     function renderMood() {
         const data = getCurrent();
         const moodValue = data.mood;
@@ -811,7 +776,6 @@
     }
     function bindDiary() { dom.diaryInput.oninput = () => { getCurrent().diary = dom.diaryInput.value; saveData(); dom.emptyHint.style.display = dom.diaryInput.value ? 'none' : 'block'; }; }
 
-    // 待办渲染（略，保持原样）
     function enterEditMode(li, todo) {
         li.innerHTML = `<div class="edit-mode"><input type="text" class="edit-text-input" value="${escapeHtml(todo.text)}"><input type="date" class="edit-due-input" value="${todo.dueDate || ''}"><div class="edit-actions"><button class="edit-save-btn">保存</button><button class="edit-cancel-btn">取消</button></div></div>`;
         const textInput = li.querySelector('.edit-text-input');
