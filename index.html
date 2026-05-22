@@ -138,13 +138,23 @@
             gap: 10px;
             margin-bottom: 16px;
         }
-        .todo-text-input, .todo-due-picker {
+        .todo-text-input {
             width: 100%;
             padding: 10px;
             border-radius: 8px;
             font-size: 14px;
             border: 1px solid #d1d5db;
             background: white;
+        }
+        /* 修复2：日历宽度自适应，不超出屏幕 */
+        .todo-due-picker {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            border: 1px solid #d1d5db;
+            background: white;
+            box-sizing: border-box;
         }
         .todo-add-button {
             width: 100%;
@@ -282,7 +292,6 @@
             border-top: 1px solid #e5e7eb;
         }
 
-        /* 弹窗 - 可点击遮罩关闭 */
         .modal-mask {
             position: fixed;
             top: 0;
@@ -696,11 +705,24 @@
         cancelBtn.onclick = () => renderTodos();
     }
 
+    // 修复1：待办按截止日期正序（空日期排在最后）
     function renderTodos() {
         const todos = getCurrent().todos || [];
-        const incomplete = todos.filter(t => !t.completed).sort((a,b) => (a.createdAt||0) - (b.createdAt||0));
-        const complete = todos.filter(t => t.completed).sort((a,b) => (a.completedAt||0) - (b.completedAt||0));
+        const incomplete = todos.filter(t => !t.completed);
+        const complete = todos.filter(t => t.completed);
+        
+        const sortByDueDate = (a, b) => {
+            if (!a.dueDate && !b.dueDate) return (a.createdAt||0) - (b.createdAt||0);
+            if (!a.dueDate) return 1;
+            if (!b.dueDate) return -1;
+            return a.dueDate.localeCompare(b.dueDate);
+        };
+        
+        incomplete.sort(sortByDueDate);
+        complete.sort(sortByDueDate);
+        
         const sorted = [...incomplete, ...complete];
+        
         if (!sorted.length) { dom.todoList.innerHTML = '<div class="empty-todo">✨ 空空如也，添加一条任务吧 ✨</div>'; dom.stats.innerText = `✅ 待办完成 0/0`; return; }
         dom.todoList.innerHTML = '';
         for (let t of sorted) {
@@ -797,32 +819,4 @@
 
     function renderAll() {
         ensureData();
-        dom.badge.innerText = `📌 ${formatDate(currentDate)}`;
-        renderMood();
-        renderDiary();
-        renderTodos();
-    }
-
-    function init() {
-        loadData();
-        currentDate = loadCurrentDate();
-        initPicker();
-        bindDiary();
-        renderAll();
-        renderChart();
-
-        dom.gotoBtn.onclick = () => { const val = dom.datePicker.value; if(val) goToDate(val); };
-        dom.addBtn.onclick = addTodo;
-        dom.todoText.onkeypress = e => { if(e.key === 'Enter') addTodo(); };
-        dom.historyBtn.onclick = showHistory;
-        dom.closeModal.onclick = closeHistoryModal;
-        dom.modal.onclick = (e) => { if (e.target === dom.modal) closeHistoryModal(); };
-        dom.exportBtn.onclick = exportBackup;
-        dom.importBtn.onclick = () => dom.importFile.click();
-        dom.importFile.onchange = (e) => { if (e.target.files[0]) importBackup(e.target.files[0]); e.target.value = ''; };
-        window.onbeforeunload = () => saveCurrentDate();
-    }
-    init();
-</script>
-</body>
-</html>
+        dom.badge.inner
