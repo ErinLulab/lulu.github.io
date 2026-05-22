@@ -13,7 +13,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="LuluList">
     <style>
-        /* ========== 完全继承 v3.2.0 样式，只修改喝水打卡部分 ========== */
         * {
             margin: 0;
             padding: 0;
@@ -146,7 +145,7 @@
             color: white;
         }
 
-        /* 喝水打卡：一行均匀分布，图标改为🧃 */
+        /* 喝水打卡：B 方案（杯子 🥛） */
         .water-card {
             background: #f0fdf4;
             border-radius: 12px;
@@ -175,7 +174,7 @@
             background: white;
         }
         .cup-icon.active {
-            color: #fbbf24;
+            color: #f97316;
             text-shadow: 0 0 2px #f59e0b;
             transform: scale(1.05);
         }
@@ -406,7 +405,7 @@
         </div>
     </div>
 
-    <!-- 喝水打卡：一行均匀分布，图标 🧃 -->
+    <!-- 喝水打卡：B 方案（杯子 🥛） -->
     <div class="water-card">
         <div class="water-label">💧 今天喝了几杯水</div>
         <div class="water-drops" id="waterDropsContainer"></div>
@@ -629,7 +628,7 @@
         showToast(value === 'yes' ? '💪 已记录健身' : '💪 已记录未健身');
     }
 
-    // 喝水打卡：一行均匀分布，图标 🧃
+    // 喝水打卡：B 方案（杯子 🥛）
     function renderWater() {
         const data = getCurrent();
         const waterCount = data.water || 0;
@@ -637,7 +636,7 @@
         for (let i = 1; i <= 10; i++) {
             const cup = document.createElement('div');
             cup.className = 'cup-icon';
-            cup.textContent = '🧃';
+            cup.textContent = '🥛';
             if (i <= waterCount) {
                 cup.classList.add('active');
             } else {
@@ -647,7 +646,7 @@
                 data.water = i;
                 saveData();
                 renderWater();
-                showToast(`🧃 已记录 ${i} 杯水`);
+                showToast(`🥛 已记录 ${i} 杯水`);
             };
             dom.waterDrops.appendChild(cup);
         }
