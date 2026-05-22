@@ -131,7 +131,7 @@
         .todo-header { margin-bottom: 10px; }
         .todo-title { font-weight: 600; font-size: 0.95rem; }
 
-        /* ========== TodoAddBar 两行布局（仿 DateBar） ========== */
+        /* TodoAddBar 两行布局 */
         .todo-add-bar {
             background: #fef3c7;
             padding: 12px;
@@ -146,21 +146,16 @@
             gap: 8px;
             width: 100%;
         }
-        .todo-text-input {
+        /* 修复宽度溢出：min-width: 0 是关键 */
+        .todo-text-input, .todo-due-picker {
             flex: 1;
+            min-width: 0;
             padding: 10px;
             border-radius: 6px;
             font-size: 14px;
             border: 1px solid #d1d5db;
             background: white;
-        }
-        .todo-due-picker {
-            flex: 1;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 14px;
-            border: 1px solid #d1d5db;
-            background: white;
+            box-sizing: border-box;
         }
         .todo-add-button {
             width: 100%;
@@ -330,7 +325,7 @@
     <div class="todo-card">
         <div class="todo-header"><span class="todo-title">🎯 待办清单</span></div>
         
-        <!-- TodoAddBar 两行布局 -->
+        <!-- TodoAddBar 两行布局：第一行文本框+日期选择器，第二行添加按钮 -->
         <div class="todo-add-bar">
             <div class="todo-add-row">
                 <input type="text" id="todoTextInput" class="todo-text-input" placeholder="新任务" autocomplete="off">
@@ -681,7 +676,7 @@
         dom.datePicker.min = getEarliest();
         dom.datePicker.max = getTodayDate();
         dom.datePicker.value = currentDate;
-        dom.dateHint.innerText = `📆 近${MAX_DAYS}天`;
+        dom.dateHint.innerText = `📆 支持输入近${MAX_DAYS}天`;
     }
 
     function renderAll() {
