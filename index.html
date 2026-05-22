@@ -13,6 +13,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="LuluList">
     <style>
+        /* ========== v3.0.8 样式完全保留（未改动） ========== */
         * {
             margin: 0;
             padding: 0;
@@ -97,6 +98,7 @@
             font-size: 0.9rem;
         }
 
+        /* 心情卡片 */
         .mood-card {
             background: #fef2f2;
             border-radius: 12px;
@@ -114,6 +116,60 @@
         .star.active { color: #fbbf24; }
         .star.default-star { color: #9ca3af; border: 1px dashed #d1d5db; border-radius: 4px; padding: 2px; font-size: 1.3rem; }
         .mood-hint { font-size: 0.65rem; color: #9ca3af; }
+
+        /* 健身打卡卡片 */
+        .workout-card {
+            background: #fef2f2;
+            border-radius: 12px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .workout-label { font-weight: 600; color: #dc2626; font-size: 0.9rem; }
+        .workout-buttons { display: flex; gap: 12px; }
+        .workout-btn {
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            background: white;
+            border: 1px solid #d1d5db;
+            color: #6b7280;
+            transition: all 0.2s;
+        }
+        .workout-btn.active {
+            background: #f97316;
+            border-color: #f97316;
+            color: white;
+        }
+
+        /* 喝水打卡卡片 */
+        .water-card {
+            background: #e8f4f8;
+            border-radius: 12px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+        }
+        .water-label { font-weight: 600; color: #0c4a6e; font-size: 0.9rem; margin-bottom: 12px; }
+        .water-drops {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .drop {
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #93c5fd;
+            transition: 0.1s;
+        }
+        .drop.active { color: #3b82f6; text-shadow: 0 0 2px #3b82f6; }
+        .drop.default-drop { color: #93c5fd; opacity: 0.6; }
 
         .diary-card { margin-bottom: 20px; }
         .diary-label { font-weight: 600; margin-bottom: 6px; color: #374151; font-size: 0.9rem; }
@@ -305,6 +361,8 @@
         @media (max-width: 480px) {
             .date-picker { min-width: 100px; }
             .date-go-button { padding: 8px 12px; }
+            .workout-btn { padding: 4px 16px; }
+            .drop { font-size: 1.4rem; }
         }
     </style>
 </head>
@@ -326,20 +384,37 @@
 
     <div class="date-badge" id="currentDateBadge"></div>
 
+    <!-- 心情卡片 -->
     <div class="mood-card">
         <span class="mood-label">💖 今日心情</span>
         <div class="mood-stars" id="starContainer"></div>
     </div>
 
+    <!-- 健身打卡卡片 -->
+    <div class="workout-card">
+        <span class="workout-label">💪 今天你健身了么</span>
+        <div class="workout-buttons">
+            <button id="workoutYesBtn" class="workout-btn">Yes</button>
+            <button id="workoutNoBtn" class="workout-btn">No</button>
+        </div>
+    </div>
+
+    <!-- 喝水打卡卡片 -->
+    <div class="water-card">
+        <div class="water-label">💧 今天喝了几杯水</div>
+        <div class="water-drops" id="waterDropsContainer"></div>
+    </div>
+
+    <!-- 日记卡片 -->
     <div class="diary-card">
         <div class="diary-label">📝 今日日记</div>
         <textarea class="diary-textarea" id="diaryInput" rows="3" placeholder="写点什么吧..."></textarea>
         <div class="diary-empty-hint" id="emptyDiaryHint" style="display: none;">✨ 还没有写日记，记录一下今天的心情吧～</div>
     </div>
 
+    <!-- 待办卡片 -->
     <div class="todo-card">
         <div class="todo-header"><span class="todo-title">🎯 待办清单</span></div>
-        
         <div class="todo-add-bar">
             <div class="todo-add-row">
                 <input type="text" id="todoTextInput" class="todo-text-input" placeholder="新任务" autocomplete="off">
@@ -347,15 +422,16 @@
             </div>
             <button id="addTodoBtn" class="todo-add-button">➕ 添加</button>
         </div>
-        
         <ul class="todo-list" id="todoListContainer"></ul>
     </div>
 
+    <!-- 图表 -->
     <div class="chart-wrapper">
         <div class="chart-title">📈 近7天心情趋势</div>
         <canvas id="moodChart"></canvas>
     </div>
 
+    <!-- 底部按钮 -->
     <div class="footer-actions">
         <div class="footer-left">
             <button id="historyBtn" class="action-btn">📜 历史完成</button>
@@ -378,6 +454,7 @@
 </div>
 
 <script>
+    // ========== LuluList v3.2.0 健身打卡 + 喝水打卡 ==========
     const STORAGE_KEY = 'lululist_v3.0';
     const MAX_DAYS = 30;
     let journal = {};
@@ -405,7 +482,10 @@
         importFile: document.getElementById('importFileInput'),
         modal: document.getElementById('historyModal'),
         historyContent: document.getElementById('historyContent'),
-        closeModal: document.getElementById('closeHistoryBtn')
+        closeModal: document.getElementById('closeHistoryBtn'),
+        workoutYes: document.getElementById('workoutYesBtn'),
+        workoutNo: document.getElementById('workoutNoBtn'),
+        waterDrops: document.getElementById('waterDropsContainer')
     };
 
     function getTodayDate() {
@@ -432,6 +512,7 @@
         setTimeout(() => toast.remove(), 2000);
     }
 
+    // ========== 图表功能（不变） ==========
     function getLast7Days() {
         const days = [];
         for (let i = 6; i >= 0; i--) {
@@ -448,7 +529,7 @@
         days.forEach(date => {
             labels.push(date.slice(5));
             const mood = journal[date]?.mood;
-            moodValues.push(mood !== undefined && journal[date]?._hasUserRated ? mood : null);
+            moodValues.push(mood !== undefined && mood !== null ? mood : null);
         });
 
         const ctx = document.getElementById('moodChart').getContext('2d');
@@ -475,15 +556,8 @@
                 responsive: true,
                 maintainAspectRatio: true,
                 scales: {
-                    y: {
-                        min: 1,
-                        max: 5,
-                        stepSize: 1,
-                        title: { display: true, text: '心情 (1~5星)' }
-                    },
-                    x: {
-                        title: { display: true, text: '日期' }
-                    }
+                    y: { min: 1, max: 5, stepSize: 1, title: { display: true, text: '心情 (1~5星)' } },
+                    x: { title: { display: true, text: '日期' } }
                 },
                 plugins: {
                     tooltip: {
@@ -501,14 +575,30 @@
     }
 
     function refreshChart() {
-        if (document.getElementById('moodChart')) {
-            renderChart();
-        }
+        if (document.getElementById('moodChart')) renderChart();
     }
 
+    // ========== 数据迁移与默认值 ==========
     function loadData() {
         const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) { journal = JSON.parse(stored); return; }
+        if (stored) {
+            journal = JSON.parse(stored);
+            // 补充缺失字段
+            for (let d in journal) {
+                if (journal[d].workout === undefined) journal[d].workout = null;
+                if (journal[d].water === undefined) journal[d].water = 0;
+                if (journal[d].mood === undefined) journal[d].mood = null;
+                if (journal[d]._hasUserRated === undefined) journal[d]._hasUserRated = false;
+                if (journal[d].todos) {
+                    journal[d].todos = journal[d].todos.map(t => ({ ...t, createdAt: t.createdAt || Date.now(), completedAt: t.completedAt || null }));
+                } else {
+                    journal[d].todos = [];
+                }
+                if (journal[d].diary === undefined) journal[d].diary = '';
+            }
+            saveData();
+            return;
+        }
         const oldKeys = ['lululist_v2.0', 'lululist_v2.1'];
         for (let key of oldKeys) {
             const old = localStorage.getItem(key);
@@ -517,23 +607,89 @@
                 for (let d in journal) {
                     if (journal[d].todos) {
                         journal[d].todos = journal[d].todos.map(t => ({ ...t, createdAt: t.createdAt || Date.now(), completedAt: t.completedAt || null }));
+                    } else {
+                        journal[d].todos = [];
                     }
                     if (journal[d]._hasUserRated === undefined) journal[d]._hasUserRated = false;
+                    if (journal[d].workout === undefined) journal[d].workout = null;
+                    if (journal[d].water === undefined) journal[d].water = 0;
+                    if (journal[d].mood === undefined) journal[d].mood = null;
+                    if (journal[d].diary === undefined) journal[d].diary = '';
                 }
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(journal));
                 localStorage.removeItem(key);
-                console.log('✅ 已自动迁移旧数据');
                 showToast('已自动迁移旧数据');
                 return;
             }
         }
         const today = getTodayDate();
-        journal = { [today]: { mood: 3, _hasUserRated: false, diary: "今天开始用电子手账啦！", todos: [] } };
+        journal = { [today]: { mood: null, _hasUserRated: false, workout: null, water: 0, diary: "", todos: [] } };
+        saveData();
     }
+
     function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(journal)); }
-    function ensureData() { if (!journal[currentDate]) journal[currentDate] = { mood: 3, _hasUserRated: false, diary: '', todos: [] }; saveData(); }
+    function ensureData() { if (!journal[currentDate]) journal[currentDate] = { mood: null, _hasUserRated: false, workout: null, water: 0, diary: '', todos: [] }; saveData(); }
     function getCurrent() { ensureData(); return journal[currentDate]; }
 
+    // ========== 健身打卡渲染 ==========
+    function renderWorkout() {
+        const data = getCurrent();
+        if (data.workout === 'yes') {
+            dom.workoutYes.classList.add('active');
+            dom.workoutNo.classList.remove('active');
+        } else if (data.workout === 'no') {
+            dom.workoutNo.classList.add('active');
+            dom.workoutYes.classList.remove('active');
+        } else {
+            dom.workoutYes.classList.remove('active');
+            dom.workoutNo.classList.remove('active');
+        }
+    }
+
+    function setWorkout(value) {
+        const data = getCurrent();
+        data.workout = value;
+        saveData();
+        renderWorkout();
+        showToast(value === 'yes' ? '💪 已记录健身' : '💪 已记录未健身');
+    }
+
+    // ========== 喝水打卡渲染 ==========
+    function renderWater() {
+        const data = getCurrent();
+        const waterCount = data.water || 0;
+        dom.waterDrops.innerHTML = '';
+        for (let i = 1; i <= 10; i++) {
+            const drop = document.createElement('span');
+            drop.className = 'drop';
+            drop.textContent = '💧';
+            if (i <= waterCount) {
+                drop.classList.add('active');
+            } else {
+                drop.classList.add('default-drop');
+            }
+            drop.onclick = () => {
+                const newCount = i;
+                data.water = newCount;
+                saveData();
+                renderWater();
+                showToast(`💧 已记录 ${newCount} 杯水`);
+            };
+            dom.waterDrops.appendChild(drop);
+        }
+    }
+
+    // ========== 继承（同步健身/喝水） ==========
+    function inheritExtras(prev, next) {
+        if (!prev || !journal[prev]) return;
+        const prevData = journal[prev];
+        if (!journal[next]) journal[next] = { mood: null, _hasUserRated: false, workout: null, water: 0, diary: '', todos: [] };
+        // 健身：未完成（null）不继承？这里保持独立，不自动继承，由用户自己打卡
+        // 喝水：不自动继承，每天独立
+        // 待办未完成继承已经在原函数中处理
+    }
+
+    // 原继承函数（已存在，需要整合）
     function inheritTodos(prev, next) {
         if (!prev || !journal[prev]) return;
         const prevTodos = journal[prev].todos || [];
@@ -541,7 +697,7 @@
         const nextIds = new Set(nextTodos.map(t => t.id));
         const toInherit = prevTodos.filter(t => t.completed === false && !nextIds.has(t.id));
         if (!toInherit.length) return;
-        if (!journal[next]) journal[next] = { mood: 3, _hasUserRated: false, diary: '', todos: [] };
+        if (!journal[next]) journal[next] = { mood: null, _hasUserRated: false, workout: null, water: 0, diary: '', todos: [] };
         for (let t of toInherit) {
             journal[next].todos.push({
                 id: t.id, text: t.text, completed: false, dueDate: t.dueDate,
@@ -551,6 +707,7 @@
         saveData();
     }
 
+    // ========== 删除、更新等（需刷新打卡模块） ==========
     function deleteGlobal(id) {
         for (let d in journal) journal[d].todos = journal[d].todos.filter(t => t.id !== id);
         saveData();
@@ -581,6 +738,7 @@
         a.click();
         showToast('📤 已导出');
     }
+
     function importBackup(file) {
         const reader = new FileReader();
         reader.onload = e => {
@@ -613,16 +771,17 @@
         dom.modal.style.display = 'flex';
     }
 
-    function closeHistoryModal() {
-        dom.modal.style.display = 'none';
-    }
-
+    function closeHistoryModal() { dom.modal.style.display = 'none'; }
     function escapeHtml(str) { return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
 
+    // ========== 渲染心情 ==========
     function renderMood() {
         const data = getCurrent();
-        if (!data._hasUserRated) {
-            dom.starContainer.innerHTML = '';
+        const moodValue = data.mood;
+        const hasUserRated = data._hasUserRated;
+        
+        dom.starContainer.innerHTML = '';
+        if (!hasUserRated) {
             for (let i=1;i<=5;i++) {
                 const s = document.createElement('span');
                 s.className = 'star default-star';
@@ -636,13 +795,11 @@
             dom.starContainer.appendChild(hint);
             return;
         }
-        const val = data.mood || 3;
-        dom.starContainer.innerHTML = '';
         for (let i=1;i<=5;i++) {
             const s = document.createElement('span');
-            s.className = `star ${i<=val ? 'active' : ''}`;
+            s.className = `star ${i<=moodValue ? 'active' : ''}`;
             s.textContent = '★';
-            s.onclick = () => { data.mood = i; saveData(); renderMood(); showToast(`心情 ${i} 星`); refreshChart(); };
+            s.onclick = () => { data.mood = i; data._hasUserRated = true; saveData(); renderMood(); showToast(`心情 ${i} 星`); refreshChart(); };
             dom.starContainer.appendChild(s);
         }
     }
@@ -654,28 +811,14 @@
     }
     function bindDiary() { dom.diaryInput.oninput = () => { getCurrent().diary = dom.diaryInput.value; saveData(); dom.emptyHint.style.display = dom.diaryInput.value ? 'none' : 'block'; }; }
 
+    // 待办渲染（略，保持原样）
     function enterEditMode(li, todo) {
-        li.innerHTML = `
-            <div class="edit-mode">
-                <input type="text" class="edit-text-input" value="${escapeHtml(todo.text)}">
-                <input type="date" class="edit-due-input" value="${todo.dueDate || ''}">
-                <div class="edit-actions">
-                    <button class="edit-save-btn">保存</button>
-                    <button class="edit-cancel-btn">取消</button>
-                </div>
-            </div>
-        `;
+        li.innerHTML = `<div class="edit-mode"><input type="text" class="edit-text-input" value="${escapeHtml(todo.text)}"><input type="date" class="edit-due-input" value="${todo.dueDate || ''}"><div class="edit-actions"><button class="edit-save-btn">保存</button><button class="edit-cancel-btn">取消</button></div></div>`;
         const textInput = li.querySelector('.edit-text-input');
         const dueInput = li.querySelector('.edit-due-input');
         const saveBtn = li.querySelector('.edit-save-btn');
         const cancelBtn = li.querySelector('.edit-cancel-btn');
-        
-        saveBtn.onclick = () => {
-            const newText = textInput.value.trim();
-            if (!newText) return alert('内容不能为空');
-            const newDueDate = dueInput.value || null;
-            updateGlobal(todo.id, newText, newDueDate);
-        };
+        saveBtn.onclick = () => { const newText = textInput.value.trim(); if (!newText) return alert('内容不能为空'); const newDueDate = dueInput.value || null; updateGlobal(todo.id, newText, newDueDate); };
         cancelBtn.onclick = () => renderTodos();
     }
 
@@ -687,42 +830,17 @@
         if (!sorted.length) { dom.todoList.innerHTML = '<div class="empty-todo">✨ 空空如也，添加一条任务吧 ✨</div>'; dom.stats.innerText = `✅ 待办完成 0/0`; return; }
         dom.todoList.innerHTML = '';
         for (let t of sorted) {
-            const li = document.createElement('li');
-            li.className = `todo-item ${t.completed ? 'completed' : ''}`;
-            const topRow = document.createElement('div');
-            topRow.className = 'todo-row-top';
-            const chk = document.createElement('input');
-            chk.type = 'checkbox';
-            chk.className = 'todo-check';
-            chk.checked = t.completed;
-            chk.onchange = () => { 
-                t.completed = chk.checked; 
-                t.completedAt = chk.checked ? Date.now() : null; 
-                if (!t.createdAt) t.createdAt = Date.now(); 
-                saveData(); 
-                renderTodos(); 
-                showToast(chk.checked ? '✅ 已完成' : '↩️ 已撤销'); 
-                refreshChart();
-            };
-            const textSpan = document.createElement('span');
-            textSpan.className = 'todo-text';
-            textSpan.innerText = t.text;
+            const li = document.createElement('li'); li.className = `todo-item ${t.completed ? 'completed' : ''}`;
+            const topRow = document.createElement('div'); topRow.className = 'todo-row-top';
+            const chk = document.createElement('input'); chk.type = 'checkbox'; chk.className = 'todo-check'; chk.checked = t.completed;
+            chk.onchange = () => { t.completed = chk.checked; t.completedAt = chk.checked ? Date.now() : null; if (!t.createdAt) t.createdAt = Date.now(); saveData(); renderTodos(); showToast(chk.checked ? '✅ 已完成' : '↩️ 已撤销'); refreshChart(); };
+            const textSpan = document.createElement('span'); textSpan.className = 'todo-text'; textSpan.innerText = t.text;
             topRow.append(chk, textSpan);
-            const bottomRow = document.createElement('div');
-            bottomRow.className = 'todo-row-bottom';
-            const dueSpan = document.createElement('span');
-            dueSpan.className = 'todo-due-date';
-            dueSpan.innerText = t.dueDate ? `📅 ${t.dueDate}` : '⏳ 无日期';
-            const actionsDiv = document.createElement('div');
-            actionsDiv.className = 'todo-actions';
-            const editBtn = document.createElement('button');
-            editBtn.innerHTML = '✏️';
-            editBtn.className = 'todo-edit-icon';
-            editBtn.onclick = () => enterEditMode(li, t);
-            const delBtn = document.createElement('button');
-            delBtn.innerHTML = '🗑️';
-            delBtn.className = 'todo-delete-icon';
-            delBtn.onclick = () => { if(confirm('永久删除？')) deleteGlobal(t.id); };
+            const bottomRow = document.createElement('div'); bottomRow.className = 'todo-row-bottom';
+            const dueSpan = document.createElement('span'); dueSpan.className = 'todo-due-date'; dueSpan.innerText = t.dueDate ? `📅 ${t.dueDate}` : '⏳ 无日期';
+            const actionsDiv = document.createElement('div'); actionsDiv.className = 'todo-actions';
+            const editBtn = document.createElement('button'); editBtn.innerHTML = '✏️'; editBtn.className = 'todo-edit-icon'; editBtn.onclick = () => enterEditMode(li, t);
+            const delBtn = document.createElement('button'); delBtn.innerHTML = '🗑️'; delBtn.className = 'todo-delete-icon'; delBtn.onclick = () => { if(confirm('永久删除？')) deleteGlobal(t.id); };
             actionsDiv.append(editBtn, delBtn);
             bottomRow.append(dueSpan, actionsDiv);
             li.append(topRow, bottomRow);
@@ -735,11 +853,7 @@
     function addTodo() {
         const text = dom.todoText.value.trim();
         if (!text) return alert('请输入内容');
-        const newTodo = {
-            id: Date.now() + '_' + Math.random().toString(36).substring(2,6),
-            text, completed: false, dueDate: dom.todoDue.value || null,
-            createdAt: Date.now(), completedAt: null
-        };
+        const newTodo = { id: Date.now() + '_' + Math.random().toString(36).substring(2,6), text, completed: false, dueDate: dom.todoDue.value || null, createdAt: Date.now(), completedAt: null };
         getCurrent().todos.push(newTodo);
         saveData();
         renderTodos();
@@ -758,6 +872,7 @@
         const prev = currentDate;
         currentDate = dateStr;
         inheritTodos(prev, currentDate);
+        inheritExtras(prev, currentDate);
         saveCurrentDate();
         renderAll();
         dom.dashboard.classList.remove('fade-out');
@@ -775,7 +890,6 @@
         dom.datePicker.min = getEarliest();
         dom.datePicker.max = getTodayDate();
         dom.datePicker.value = currentDate;
-        // 最终文案：支持近30天
         dom.dateHint.innerText = `📆 支持近${MAX_DAYS}天`;
     }
 
@@ -783,6 +897,8 @@
         ensureData();
         dom.badge.innerText = `📌 ${formatDate(currentDate)}`;
         renderMood();
+        renderWorkout();
+        renderWater();
         renderDiary();
         renderTodos();
     }
@@ -803,6 +919,8 @@
         dom.exportBtn.onclick = exportBackup;
         dom.importBtn.onclick = () => dom.importFile.click();
         dom.importFile.onchange = e => { if(e.target.files[0]) importBackup(e.target.files[0]); e.target.value = ''; };
+        dom.workoutYes.onclick = () => setWorkout('yes');
+        dom.workoutNo.onclick = () => setWorkout('no');
         window.onbeforeunload = () => saveCurrentDate();
     }
     init();
